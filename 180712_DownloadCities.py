@@ -1,21 +1,37 @@
+
+# coding: utf-8
+
+# In[1]:
+
+
 import time
 import osmnx as ox
 import os
 import networkx as nx
+get_ipython().run_line_magic('matplotlib', 'inline')
 
-# Configure OSMnx
+
+# In[2]:
+
+
 useful_tags = ox.settings.useful_tags_path + ['cycleway']
-ox.config(data_folder='Data', logs_folder='logs',
+ox.config(data_folder='data', logs_folder='logs',
           imgs_folder='imgs', cache_folder='cache',
           use_cache=True, log_console=True, useful_tags_path=useful_tags)
 
-# Get networks
+
+# In[3]:
+
+
 def get_network(city, n_type='all', infrastructure='way["highway"]'):
     try:
         G = ox.graph_from_place(city, network_type=n_type, simplify=True, which_result=1, infrastructure=infrastructure)
     except:
         G = ox.graph_from_place(city, network_type=n_type, simplify=True, which_result=2, infrastructure=infrastructure)
     return ox.project_graph(G)
+
+
+# In[4]:
 
 
 def bike_network(city):
@@ -29,10 +45,18 @@ def bike_network(city):
     G = ox.simplify_graph(G)
     return ox.project_graph(G)
 
+
+# In[5]:
+
+
 def assure_path_exists(path):
     dir = os.path.dirname(path)
     if not os.path.exists(dir):
         os.makedirs(dir)
+
+
+# In[6]:
+
 
 def simplify_graph(G):
     G_simple = nx.Graph()
@@ -46,13 +70,20 @@ def simplify_graph(G):
     return G_simple
 
 
+# In[7]:
+
+
 def bike_walk_network(G):
     """
     Filter the network to get only the cycleways or pedestrians
     """
+
+    #G = get_network(city)
     cycle = []
     remove = []
+
     edges = dict(G.edges)
+
     for k, v in edges.items():
         if (v['highway']) !='cycleway' or v != 'cycleway':
                 cycle.append(k)
@@ -64,6 +95,7 @@ def bike_walk_network(G):
     for c in cycle:
         u,v,w = c
         G.remove_edge(u,v)
+
     degree = list(G.degree())
 
     for k in degree:
@@ -74,15 +106,23 @@ def bike_walk_network(G):
     return G
 
 
+# In[8]:
+
+
 def area(city):
     city_shape = ox.gdf_from_place(city)
-    if city_shape.geom_type.all() == 'Point':
+    if city_shape.geom_type.all() != 'Polygon' or city_shape.geom_type.all() != 'MultiPolygon':
         city_shape = ox.gdf_from_place(city, which_result=2)
     return city_shape
 
 
-cities = {'Amsterdam':'Amsterdam, Netherlands',
-          'Phoenix':'Phoenix, Arizona, USA',
+
+
+# In[9]:
+
+
+cities = {'Phoenix':'Phoenix, Arizona, USA',
+          'Amsterdam':'Amsterdam, Netherlands',
           'Detroit':'Detroit, Michigan, USA',
           'Manhattan':'Manhattan, New York City, New York, USA',
           'Mexico':'DF, Mexico',
@@ -97,7 +137,10 @@ cities = {'Amsterdam':'Amsterdam, Netherlands',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 
-#Execute script
+
+# In[17]:
+
+
 start = time.time()
 for name, city in cities.items():
     start_0 = time.time()
@@ -105,45 +148,58 @@ for name, city in cities.items():
     #Create and check the path
     path = 'data/{}/'.format(name)
     assure_path_exists(path)
+
+    path_simple = 'data/{}/simple/'.format(name)
+    assure_path_exists(path_simple)
+
     print('Starting with: {}'.format(name))
 
     #Download the shape
     city_shape = area(city)
     city_shape = ox.project_gdf(city_shape)
-    ox.save_gdf_shapefile(city_shape, filename='{}/{}'.format(name,name))
+    ox.save_gdf_shapefile(city_shape, filename='{}_shape'.format(name), folder=path)
+    print('Saved')
+    ox.plot_shape(city_shape)
 
-    #Download the graphs
+    #Drive
     G_drive = get_network(city, n_type='drive')
-    G_pedestrian = get_network(city, n_type='walk')
+    ox.save_graphml(G_drive, filename='{}_drive.graphml'.format(name), folder=path)
+    print('{} Drive downloaded and saved. Elapsed time {} s\nSimplifying the network...'.format(name,round(time.time()-start_0,2)))
+    G_simple = simplify_graph(G_drive)
+    nx.write_edgelist(G_simple, path=path_simple+'{}_drive_simple.txt'.format(name))
+    print('{} Drive simplified and saved. Elapsed time {} s'.format(name,round(time.time()-start_0,2)))
+
+
+    #Pedestrian
+    G = get_network(city, n_type='walk')
+    ox.save_graphml(G, filename='{}_pedestrian.graphml'.format(name), folder=path)
+    print('{} Pedestrian downloaded and saved. Elapsed time {} s\nSimplifying the network...'.format(name,round(time.time()-start_0,2)))
+    G_simple = simplify_graph(G)
+    nx.write_edgelist(G_simple, path=path_simple+'{}_pedestrian_simple.txt'.format(name))
+    print('{} Pedestrian simplified and saved. Elapsed time {} s'.format(name,round(time.time()-start_0,2)))
+
+    #Bike
     if name == 'Beihai':
-        G_bike = bike_walk_network(G_drive)
+        G = bike_walk_network(G_drive)
     else:
-        G_bike = bike_network(city)
+        G = bike_network(city)
+    ox.save_graphml(G, filename='{}_bike.graphml'.format(name),folder=path)
+    print('{} Bike downloaded and saved. Elapsed time {} s\nSimplifying the network...'.format(name,round(time.time()-start_0,2)))
+    G_simple = simplify_graph(G)
+    nx.write_edgelist(G_simple, path=path_simple+'{}_bike_simple.txt'.format(name))
+    print('{} Bike simplified and saved. Elapsed time {} s'.format(name,round(time.time()-start_0,2)))
+
+    #Rail
     try:
-        G_rail = get_network(city, n_type='none', infrastructure='way["railway"~"subway|tram|light_rail"]')
+        G = get_network(city, n_type='none', infrastructure='way["railway"~"subway|tram|light_rail"]')
     except:
-        G_rail = get_network(city, n_type='none', infrastructure='way["railway"]')
+        G = get_network(city, n_type='none', infrastructure='way["railway"]')
+    ox.save_graphml(G, filename='{}_rail.graphml'.format(name), folder=path)
+    print('{} Rail downloaded and saved. Elapsed time {} s\nSimplifying the network...'.format(name,round(time.time()-start_0,2)))
+    G_simple = simplify_graph(G)
+    nx.write_edgelist(G_simple, path=path_simple+'{}_rail_simple.txt'.format(name))
+    print('{} Bike simplified and saved. Elapsed time {} s'.format(name,round(time.time()-start_0,2)))
 
-    #Save the original graphs
-    ox.save_graphml(G_drive, filename='{}/{}_drive.graphml'.format(name,name))
-    ox.save_graphml(G_pedestrian, filename='{}/{}_pedestrian.graphml'.format(name,name))
-    ox.save_graphml(G_bike, filename='{}/{}_bike.graphml'.format(name,name))
-    ox.save_graphml(G_rail, filename='{}/{}_rail.graphml'.format(name,name))
+    print('{} done in {} s'.format(name,round(time.time()-start_0,2)))
 
-    #Simplify Graph
-    G_drive_simple = simplify_graph(G_drive)
-    G_rail_simple = simplify_graph(G_rail)
-    G_bike_simple = simplify_graph(G_bike)
-    G_pedestrian_simple = simplify_graph(G_pedestrian)
-
-    path = 'Data/{}/simple/'.format(name)
-    assure_path_exists(path)
-
-    nx.write_edgelist(G_drive_simple, path='Data/{}/simple/{}_drive_simple.txt'.format(name, name))
-    nx.write_edgelist(G_rail_simple, path='Data/{}/simple/{}_rail_simple.txt'.format(name, name))
-    nx.write_edgelist(G_bike_simple, path='Data/{}/simple/{}_bike_simple.txt'.format(name, name))
-    nx.write_edgelist(G_pedestrian_simple, path='Data/{}/simple/{}_pedestrian_simple.txt'.format(name, name))
-
-    print('{} done in {0:2f} s'.format(name,time.time()-start_0))
-
-print('All cities done in {0:2f} min'.format((time.time()-start)/60))
+print('All cities done in {} min'.format((time.time()-start)/60))
