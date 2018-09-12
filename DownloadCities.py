@@ -79,9 +79,8 @@ def bike_network(geometry):
                               name=name, retain_all=True, simplify=False)
     non_cycleways = [(u, v, k) for u, v, k, d in G.edges(keys=True, data=True) if not ('cycleway' in d or d['highway']=='cycleway')]
     G.remove_edges_from(non_cycleways)
-    #G = ox.remove_isolated_nodes(G)
     G = ox.simplify_graph(G)
-    return ox.project_graph(G)
+    return G
 
 
 #Execute the script
@@ -120,7 +119,7 @@ for name, city in cities.items():
     ox.save_graphml(G, filename='{}_walk.graphml'.format(name), folder=path)
     print('{} Pedestrian downloaded and saved. Elapsed time {} s\nSimplifying the network...'.format(name,round(time.time()-start_0,2)))
     G_simple = simplify_graph(G)
-    nx.write_edgelist(G_simple, path=path_simple+'{}_drive_simple.txt'.format(name))
+    nx.write_edgelist(G_simple, path=path_simple+'{}_walk_simple.txt'.format(name))
     print('{} Pedestrian simplified and saved. Elapsed time {} s\nStarting with bike network...\n'.format(name,round(time.time()-start_0,2)))
 
     #Bike
@@ -128,6 +127,7 @@ for name, city in cities.items():
         G = bike_walk_network(G_drive)
     else:
         G = bike_network(geometry)
+        G = ox.project_graph(G)
     ox.save_graphml(G, filename='{}_bike.graphml'.format(name),folder=path)
     print('{} Bike downloaded and saved. Elapsed time {} s\nSimplifying the network...'.format(name,round(time.time()-start_0,2)))
     G_simple = simplify_graph(G)
@@ -141,6 +141,7 @@ for name, city in cities.items():
     except:
         G = ox.graph_from_polygon(polygon=geometry, network_type='none',
                               name=name, retain_all=False, infrastructure='way["railway"]')
+    G = ox.project_graph(G)
     ox.save_graphml(G, filename='{}_rail.graphml'.format(name), folder=path)
     print('{} Rail downloaded and saved. Elapsed time {} s\nSimplifying the network...'.format(name,round(time.time()-start_0,2)))
     G_simple = simplify_graph(G)
