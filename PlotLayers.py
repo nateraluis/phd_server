@@ -72,7 +72,7 @@ for name, city in cities.items():
     for layer, color, name_layer in zip(layers, colors_layers, names):
         if len(layer.nodes)>0:
             fig, ax = ox.plot_graph(layer, fig_height=30, show=False, close=False, edge_color=color, node_color=color, node_alpha=0)
-            fig.savefig(path_plot+'{}_{}{}_Layer.png'.format(now.date(),name,name_layer),dpi=600, bbox_inches='tight')
+            fig.savefig(path_plot+'{}_{}{}_Layer.png'.format(now.date(),name,name_layer),dpi=350, bbox_inches='tight', transparent=True)
 
             '''
             plt.close()
