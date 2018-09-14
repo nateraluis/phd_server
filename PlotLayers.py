@@ -15,7 +15,6 @@ ox.config(data_folder='/mnt/cns_storage3/luis/Data', logs_folder='/mnt/cns_stora
           use_cache=True, log_console=False, log_name='osmnx',
           log_file=True, log_filename='osmnx')
 
-crs_osm = {'init':'epsg:4326'}           #crs that osm uses
 colors_layers = ['#e9c46a','#e76f51','#f4a261','#264653']
 names = ['_walk', '_bike', '_rail', '_drive']
 now = datetime.datetime.now()
@@ -52,18 +51,22 @@ for name, city in cities.items():
     #2.- Load the graphs
     print('Loading the layers and geometry:')
     G_drive = ox.load_graphml('{}_drive.graphml'.format(name), folder=path)
+    G_drive = ox.project_graph(G_drive, to_crs={'init':'epsg:4326'})
     print('  + Drive loaded.')
     G_bike = ox.load_graphml('{}_bike.graphml'.format(name), folder=path)
+    G_bike = ox.project_graph(G_bike, to_crs={'init':'epsg:4326'})
     print('  + Bike loaded.')
     G_walk = ox.load_graphml('{}_walk.graphml'.format(name), folder=path)
+    G_walk = ox.project_graph(G_walk, to_crs={'init':'epsg:4326'})
     print('  + Walk loaded')
     G_rail = ox.load_graphml('{}_rail.graphml'.format(name), folder=path)
+    G_rail = ox.project_graph(G_rail, to_crs={'init':'epsg:4326'})
     print('  + Rail loaded')
 
     #3.- Load the area
-    #gdf = gpd.read_file('/mnt/cns_storage3/luis/Data/{}/{}_shape/'.format(name, name))
-    #print('  + Geometry loaded')
-    #gdf = gdf.to_crs(crs_osm)
+    gdf = gpd.read_file('/mnt/cns_storage3/luis/Data/{}/{}_shape/'.format(name, name))
+    gdf = ox.project_gdf(gdf, to_crs={'init':'epsg:4326'})
+    print('  + Geometry loaded')
 
     layers = [G_walk, G_bike, G_rail, G_drive]
 
@@ -72,9 +75,9 @@ for name, city in cities.items():
     for layer, color, name_layer in zip(layers, colors_layers, names):
         if len(layer.nodes)>0:
             fig, ax = ox.plot_graph(layer, fig_height=30, show=False, close=False, edge_color=color, node_color=color, node_alpha=0)
-            fig.savefig(path_plot+'{}_{}{}_Layer.png'.format(now.date(),name,name_layer),dpi=350, bbox_inches='tight', transparent=True)
+            #fig.savefig(path_plot+'{}_{}{}_Layer.png'.format(now.date(),name,name_layer),dpi=350, bbox_inches='tight', transparent=True)
 
-            '''
+
             plt.close()
 
             for geometry in gdf['geometry'].tolist():
@@ -82,7 +85,7 @@ for name, city in cities.items():
                     if isinstance(geometry, Polygon):
                         geometry = MultiPolygon([geometry])
                     for polygon in geometry:
-                        patch = PolygonPatch(polygon, fc='#cccccc', ec='k', linewidth=3, alpha=0.1, zorder=-1)
+                        patch = PolygonPatch(polygon, fc='#fcfdff', ec='k', linewidth=2, alpha=0.1, zorder=-1)
                         ax.add_patch(patch)
             margin = 0.02
             west, south, east, north = gdf.unary_union.bounds
@@ -90,8 +93,8 @@ for name, city in cities.items():
             margin_ew = (east - west) * margin
             ax.set_ylim((south - margin_ns, north + margin_ns))
             ax.set_xlim((west - margin_ew, east + margin_ew))
-            fig.savefig(path_plot+'{}_{}{}.png'.format(now.date(),name,name_layer),dpi=300, bbox_inches='tight')
+            fig.savefig(path_plot+'{}_{}{}_Area.png'.format(now.date(),name,name_layer),dpi=300, bbox_inches='tight')
             print('{}{} plotted.'.format(name, name_layer))
-            '''
+
     print('\nSingle plots for {} done in {} min.\n---------------\n---------------\n\n\n'.format(name,round((time.time()-start_0)/60,2)))
 print('All cities done in {} min.'.format(round((time.time()-start)/60,2)))
