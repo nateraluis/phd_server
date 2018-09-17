@@ -4,6 +4,7 @@ import os
 import osmnx as ox
 import geopandas as gpd
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from descartes import PolygonPatch
 from shapely.geometry import Polygon, MultiPolygon
@@ -70,9 +71,18 @@ for name, city in cities.items():
         row['edge_density_km'] = stats['edge_density_km']
         row['intersections_count'] = stats['intersection_count']
         row['edge_length_avg'] = stats['street_length_avg']
-        row['intersect_density_2way'] = stats['streets_per_node_counts'][2] / area_km2
-        row['intersect_density_3way'] = stats['streets_per_node_counts'][3] / area_km2
-        row['intersect_density_4way'] = stats['streets_per_node_counts'][4] / area_km2
+        try:
+            row['intersect_density_2way'] = stats['streets_per_node_counts'][2] / area_km2
+        except:
+            row['intersect_density_2way'] = np.NaN
+        try:
+            row['intersect_density_3way'] = stats['streets_per_node_counts'][3] / area_km2
+        except:
+            row['intersect_density_3way'] = np.NaN
+        try:
+            row['intersect_density_4way'] = stats['streets_per_node_counts'][4] / area_km2
+        except:
+            row['intersect_density_4way'] = np.NaN
         row['circuity_avg'] = stats['circuity_avg']
         row['streets_per_node_avg'] = stats['streets_per_node_avg']
         data_temp[layer] = row
