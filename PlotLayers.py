@@ -51,16 +51,20 @@ for name, city in cities.items():
     #2.- Load the graphs
     print('Loading the layers and geometry:')
     G_drive = ox.load_graphml('{}_drive.graphml'.format(name), folder=path)
-    G_drive = ox.project_graph(G_drive, to_crs={'init':'epsg:4326'})
+    if len(G_drive.nodes)>0:
+        G_drive = ox.project_graph(G_drive, to_crs={'init':'epsg:4326'})
     print('  + Drive loaded.')
     G_bike = ox.load_graphml('{}_bike.graphml'.format(name), folder=path)
-    G_bike = ox.project_graph(G_bike, to_crs={'init':'epsg:4326'})
+    if len(G_bike.nodes)>0:
+        G_bike = ox.project_graph(G_bike, to_crs={'init':'epsg:4326'})
     print('  + Bike loaded.')
     G_walk = ox.load_graphml('{}_walk.graphml'.format(name), folder=path)
-    G_walk = ox.project_graph(G_walk, to_crs={'init':'epsg:4326'})
+    if len(G_walk.nodes)>0:
+        G_walk = ox.project_graph(G_walk, to_crs={'init':'epsg:4326'})
     print('  + Walk loaded')
     G_rail = ox.load_graphml('{}_rail.graphml'.format(name), folder=path)
-    G_rail = ox.project_graph(G_rail, to_crs={'init':'epsg:4326'})
+    if len(G_rail.nodes)>0:
+        G_rail = ox.project_graph(G_rail, to_crs={'init':'epsg:4326'})
     print('  + Rail loaded')
 
     #3.- Load the area
@@ -75,7 +79,7 @@ for name, city in cities.items():
     for layer, color, name_layer in zip(layers, colors_layers, names):
         if len(layer.nodes)>0:
             fig, ax = ox.plot_graph(layer, fig_height=30, show=False, close=False, edge_color=color, node_color=color, node_alpha=0)
-            #fig.savefig(path_plot+'{}_{}{}_Layer.png'.format(now.date(),name,name_layer),dpi=350, bbox_inches='tight', transparent=True)
+            fig.savefig(path_plot+'{}_{}{}_Layer.png'.format(now.date(),name,name_layer),dpi=350, bbox_inches='tight', transparent=True)
 
 
             plt.close()
