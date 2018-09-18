@@ -50,6 +50,7 @@ for name, city in cities.items():
     path = '/mnt/cns_storage3/luis/Data/{}'.format(name)
 
     for layer in networks:
+
         start_layer = time.time()
         G = ox.load_graphml('{}_{}.graphml'.format(name,layer), folder=path)
         print('{} loaded'.format(layer))
@@ -61,32 +62,52 @@ for name, city in cities.items():
         area_m2 = gdf.unary_union.area
         area_km2 = area_m2 / 1e6
         print('  + Getting the stats')
-        stats = ox.basic_stats(G, area=area_m2)
-        row = {}
-        row['$N$'] = G.number_of_nodes()
-        row['$L$'] = G.number_of_edges()
-        row['$<k>$'] = stats['k_avg']
-        row['area_km2'] = area_km2
-        row['node_density_km'] = stats['node_density_km']
-        row['edge_density_km'] = stats['edge_density_km']
-        row['intersections_count'] = stats['intersection_count']
-        row['edge_length_avg'] = stats['street_length_avg']
-        try:
-            row['intersect_density_2way'] = stats['streets_per_node_counts'][2] / area_km2
-        except:
+        if len(G.nodes)>0:
+            stats = ox.basic_stats(G, area=area_m2)
+            row = {}
+            row['$N$'] = G.number_of_nodes()
+            row['$L$'] = G.number_of_edges()
+            row['$<k>$'] = stats['k_avg']
+            row['area_km2'] = area_km2
+            row['node_density_km'] = stats['node_density_km']
+            row['edge_density_km'] = stats['edge_density_km']
+            row['intersections_count'] = stats['intersection_count']
+            row['edge_length_avg'] = stats['street_length_avg']
+            try:
+                row['intersect_density_2way'] = stats['streets_per_node_counts'][2] / area_km2
+            except:
+                row['intersect_density_2way'] = np.NaN
+            try:
+                row['intersect_density_3way'] = stats['streets_per_node_counts'][3] / area_km2
+            except:
+                row['intersect_density_3way'] = np.NaN
+            try:
+                row['intersect_density_4way'] = stats['streets_per_node_counts'][4] / area_km2
+            except:
+                row['intersect_density_4way'] = np.NaN
+            row['circuity_avg'] = stats['circuity_avg']
+            row['streets_per_node_avg'] = stats['streets_per_node_avg']
+            data_temp[layer] = row
+            row = {}
+
+        else:
+            row = {}
+            row['$N$'] = G.number_of_nodes()
+            row['$L$'] = G.number_of_edges()
+            row['$<k>$'] = np.NaN
+            row['area_km2'] = area_km2
+            row['node_density_km'] = np.NaN
+            row['edge_density_km'] = np.NaN
+            row['intersections_count'] = np.NaN
+            row['edge_length_avg'] = np.NaN
             row['intersect_density_2way'] = np.NaN
-        try:
-            row['intersect_density_3way'] = stats['streets_per_node_counts'][3] / area_km2
-        except:
             row['intersect_density_3way'] = np.NaN
-        try:
-            row['intersect_density_4way'] = stats['streets_per_node_counts'][4] / area_km2
-        except:
             row['intersect_density_4way'] = np.NaN
-        row['circuity_avg'] = stats['circuity_avg']
-        row['streets_per_node_avg'] = stats['streets_per_node_avg']
-        data_temp[layer] = row
-        row = {}
+            row['circuity_avg'] = np.NaN
+            row['streets_per_node_avg'] = np.NaN
+            data_temp[layer] = row
+            row = {}
+            
         print('  + Done in {} s.'.format(round(time.time()-start_layer,3)))
     cities_dict[name]=data_temp
     print('{} done in: {} min.'.format(name,round((time.time()-start_0)/60,2)))
