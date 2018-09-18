@@ -101,7 +101,7 @@ for name, city in cities.items():
     gdf = gdf.to_crs(crs_osm)
     geometry = gdf.unary_union
     print('{} geometry loaded, starting the download...'.format(name))
-
+    
     #Drive
     G_drive = ox.graph_from_polygon(polygon=geometry, network_type='drive_service',
                               name=name, retain_all=False, infrastructure='way["highway"]')
@@ -137,10 +137,10 @@ for name, city in cities.items():
     #Rail
     try:
         G = ox.graph_from_polygon(polygon=geometry, network_type='none',
-                              name=name, retain_all=False, infrastructure='way["railway"~"subway|tram|light_rail"]')
+                              name=name, retain_all=True, infrastructure='way["railway"~"subway|tram|light_rail"]')
     except:
         G = ox.graph_from_polygon(polygon=geometry, network_type='none',
-                              name=name, retain_all=False, infrastructure='way["railway"]')
+                              name=name, retain_all=True, infrastructure='way["railway"]')
     G = ox.project_graph(G)
     ox.save_graphml(G, filename='{}_rail.graphml'.format(name), folder=path)
     print('{} Rail downloaded and saved. Elapsed time {} s\nSimplifying the network...'.format(name,round(time.time()-start_0,2)))

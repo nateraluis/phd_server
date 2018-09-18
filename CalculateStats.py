@@ -48,19 +48,19 @@ for name, city in cities.items():
     print('------\nStarting with {}:'.format(name))
     data_temp = {} #Temporal dict to store the layers of each city
     path = '/mnt/cns_storage3/luis/Data/{}'.format(name)
+    gdf = gpd.read_file('/mnt/cns_storage3/luis/Data/{}/{}_shape/'.format(name, name))
+    print('Area loaded')
+    gdf = ox.project_gdf(gdf, to_crs={'init':'epsg:4326'})
+    area_m2 = gdf.unary_union.area
+    area_km2 = area_m2 / 1e6
 
     for layer in networks:
 
         start_layer = time.time()
         G = ox.load_graphml('{}_{}.graphml'.format(name,layer), folder=path)
-        print('{} loaded'.format(layer))
+        print('  Starting with {}'.format(layer))
         if len(G.nodes)>0:
             G = ox.project_graph(G, to_crs={'init':'epsg:4326'})
-        gdf = gpd.read_file('/mnt/cns_storage3/luis/Data/{}/{}_shape/'.format(name, name))
-        print('Area loaded')
-        gdf = ox.project_gdf(gdf, to_crs={'init':'epsg:4326'})
-        area_m2 = gdf.unary_union.area
-        area_km2 = area_m2 / 1e6
         print('  + Getting the stats')
         if len(G.nodes)>0:
             stats = ox.basic_stats(G, area=area_m2)
@@ -107,15 +107,15 @@ for name, city in cities.items():
             row['streets_per_node_avg'] = np.NaN
             data_temp[layer] = row
             row = {}
-            
+
         print('  + Done in {} s.'.format(round(time.time()-start_layer,3)))
     cities_dict[name]=data_temp
-    print('{} done in: {} min.'.format(name,round((time.time()-start_0)/60,2)))
-print('All cities done in {}'.format(round((time.time()-start)/60,2)))
+    print('------\n{} done in: {} min.\n'.format(name,round((time.time()-start_0)/60,2)))
+print('\n\n------\n------\nAll cities done in {}------\n------\n'.format(round((time.time()-start)/60,2)))
 df = pd.DataFrame.from_dict({(i,j): cities_dict[i][j]
                            for i in cities_dict.keys()
                            for j in cities_dict[i].keys()})
 df.sort_index(axis=1, level=0, inplace=True, sort_remaining=False)
-
+df = df.T
 df.to_csv('/mnt/cns_storage3/luis/Cities_stats.csv', encoding='utf-8', index=False)
 print('File saved. All done!')
