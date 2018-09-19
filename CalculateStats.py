@@ -110,12 +110,18 @@ for name, city in cities.items():
 
         print('  + Done in {} s.'.format(round(time.time()-start_layer,3)))
     cities_dict[name]=data_temp
-    print('------\n{} done in: {} min.\n'.format(name,round((time.time()-start_0)/60,2)))
-print('\n\n------\n------\nAll cities done in {}------\n------\n'.format(round((time.time()-start)/60,2)))
+    print('------\n{} done in: {} min.\n------\n------\n\n'.format(name,round((time.time()-start_0)/60,2)))
+print('\n\n------\n------\nAll cities done in {}\n------\n------\n'.format(round((time.time()-start)/60,2)))
 df = pd.DataFrame.from_dict({(i,j): cities_dict[i][j]
                            for i in cities_dict.keys()
                            for j in cities_dict[i].keys()})
 df.sort_index(axis=1, level=0, inplace=True, sort_remaining=False)
-df = df.T
-df.to_csv('/mnt/cns_storage3/luis/Cities_stats.csv', encoding='utf-8', index=False)
-print('File saved. All done!')
+df = df.T[['$N$','$L$','$<k>$','area_km2','node_density_km','edge_density_km','intersections_count','edge_length_avg','intersect_density_2way','intersect_density_3way','intersect_density_4way','circuity_avg','streets_per_node_avg']]
+for column in df:
+    df[column] = df.apply(lambda x: "{:,}".format(x[column]), axis=1)
+df.to_csv('/mnt/cns_storage3/luis/outputs/Cities_stats.csv', encoding='utf-8', index=True, na_rep='/')
+print('CSV file saved.')
+with open('/mnt/cns_storage3/luis/outputs/Table1.tex','w') as tf:
+    tf.write(df.to_latex(na_rep='/',multirow=True, escape=False))
+print('Latex file saved.')
+print('\n\n------\n------\nAll done in: {} min.\n\n------\n------\n'.format(round(time.time()-start,2)))
