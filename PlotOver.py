@@ -72,7 +72,7 @@ for name, city in cities.items():
     if len(G_drive.nodes)>0:
         G_drive = ox.project_graph(G_drive, to_crs={'init':'epsg:4326'})
     print('  + Rail loaded')
-
+    layers = [G_rail, G_bike, G_walk, G_drive]
 
     #4.- Get the edges for each transportation mode
     print('  + Getting the list of edges')
@@ -91,16 +91,16 @@ for name, city in cities.items():
     for edge in A.edges():
         if edge in rail:
             color_edge.append('#f6037f')
-            edge_w.append(1.55)
+            edge_w.append(2.5)
         elif edge in bike:
             color_edge.append('#e78708')
-            edge_w.append(1.25)
+            edge_w.append(1.5)
         elif edge in walk:
             color_edge.append('#0aa8d5')
             edge_w.append(0.85)
         else:
             color_edge.append('#dbdde1')
-            edge_w.append(0.5)
+            edge_w.append(0.35)
 
 
     #4.- Plot
@@ -125,8 +125,8 @@ for name, city in cities.items():
     margin_ew = (east - west) * margin
     ax.set_ylim((south - margin_ns, north + margin_ns))
     ax.set_xlim((west - margin_ew, east + margin_ew))
-    ax.set_facecolor('#1f2024')
-    fig.savefig(path_plot+'{}_{}_Area_Structure.png'.format(now.date(),name),dpi=450, bbox_inches='tight', facecolor='#1f2024')
-
+    ax.set_facecolor('#2b313d')
+    fig.savefig(path_plot+'{}_{}_Area_Structure.png'.format(now.date(),name),dpi=450, bbox_inches='tight', facecolor='#2b313d')
+#1f2024
     print('---------------\n{} plotterd in {} min.\n---------------\n---------------\n'.format(name,round((time.time()-start_0)/60,2)))
 print('\n\n---------------\nAll cities done in {} min.\n---------------'.format(round((time.time()-start)/60,2)))
