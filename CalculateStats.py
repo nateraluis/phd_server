@@ -124,4 +124,4 @@ print('CSV file saved.')
 with open('/mnt/cns_storage3/luis/outputs/Table1.tex','w') as tf:
     tf.write(df.to_latex(na_rep='/',multirow=True, escape=False))
 print('Latex file saved.')
-print('\n\n------\n------\nAll done in: {} min.\n\n------\n------\n'.format(round(time.time()-start,2)))
+print('\n\n------\n------\nAll done in: {} min.\n\n------\n------\n'.format(round((time.time()-start)/60,2)))

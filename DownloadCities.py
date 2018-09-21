@@ -101,7 +101,7 @@ for name, city in cities.items():
     gdf = gdf.to_crs(crs_osm)
     geometry = gdf.unary_union
     print('{} geometry loaded, starting the download...'.format(name))
-    
+
     #Drive
     G_drive = ox.graph_from_polygon(polygon=geometry, network_type='drive_service',
                               name=name, retain_all=False, infrastructure='way["highway"]')
@@ -133,7 +133,7 @@ for name, city in cities.items():
     G_simple = simplify_graph(G)
     nx.write_edgelist(G_simple, path=path_simple+'{}_bike_simple.txt'.format(name))
     print('{} Bike simplified and saved. Elapsed time {} s\nStarting with rail network...\n'.format(name,round(time.time()-start_0,2)))
-
+    
     #Rail
     try:
         G = ox.graph_from_polygon(polygon=geometry, network_type='none',
