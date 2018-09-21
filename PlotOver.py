@@ -97,10 +97,10 @@ for name, city in cities.items():
             edge_w.append(1.5)
         elif edge in walk:
             color_edge.append('#0aa8d5')
-            edge_w.append(0.85)
+            edge_w.append(0.25)
         else:
             color_edge.append('#dbdde1')
-            edge_w.append(0.35)
+            edge_w.append(0.15)
 
 
     #4.- Plot
