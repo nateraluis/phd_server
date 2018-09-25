@@ -83,7 +83,8 @@ for name, city in cities.items():
         G_walk = ox.project_graph(G_walk, to_crs={'init':'epsg:4326'})
     print('  + Walk loaded')
     G_rail = ox.load_graphml('{}_rail.graphml'.format(name), folder=path)
-    if len(G_rail.nodes)>0:
+    if len(G_rail.nodes)>0:741963258
+
         G_rail = ox.project_graph(G_rail, to_crs={'init':'epsg:4326'})
     print('  + Rail loaded')
     G_drive = ox.load_graphml('{}_drive.graphml'.format(name), folder=path)
