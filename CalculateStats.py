@@ -37,7 +37,7 @@ cities = {'Phoenix':'Phoenix, Arizona, USA',
 
 names=[v for k,v in cities.items()]
 
-#Directory to store the data to be send to a dataframe
+#Dictionary to store the data to be sent to a dataframe
 cities_dict = {}
 
 networks = ['walk', 'bike', 'rail', 'drive']
@@ -68,25 +68,32 @@ for name, city in cities.items():
             row['$N$'] = G.number_of_nodes()
             row['$L$'] = G.number_of_edges()
             row['$<k>$'] = stats['k_avg']
-            row['area_km2'] = area_km2
-            row['node_density_km'] = stats['node_density_km']
-            row['edge_density_km'] = stats['edge_density_km']
-            row['intersections_count'] = stats['intersection_count']
-            row['edge_length_avg'] = stats['street_length_avg']
+            row['$area_km^2$'] = area_km2
+            row['$node density km^2$'] = stats['node_density_km']
+            row['$edge density km^2$'] = stats['edge_density_km']
+            row['edge length avg'] = stats['street_length_avg']
+            row['street segments count'] = stats['street_segments_count']
+            row['intersections count'] = stats['intersection_count']
+            row['$intersection density km$^2'] = stats['intersection_density_km']
+            row['$edge density km^2$'] = stats['edge_density_km']
+            row['$street density km^2$'] = stats['street_density_km']
+            row['$circuity avg'] = stats['circuity_avg']
+            row['streets_per node avg'] = stats['streets_per_node_avg']
+            row['self loop proportion'] = stats['self_loop_proportion']
             try:
-                row['intersect_density_2way'] = stats['streets_per_node_counts'][2] / area_km2
+                row['intersect density 2way'] = stats['streets_per_node_counts'][2] / area_km2
             except:
-                row['intersect_density_2way'] = np.NaN
+                row['intersect density 2way'] = np.NaN
             try:
-                row['intersect_density_3way'] = stats['streets_per_node_counts'][3] / area_km2
+                row['intersect density 3way'] = stats['streets_per_node_counts'][3] / area_km2
             except:
-                row['intersect_density_3way'] = np.NaN
+                row['intersect density 3way'] = np.NaN
             try:
-                row['intersect_density_4way'] = stats['streets_per_node_counts'][4] / area_km2
+                row['intersect density 4way'] = stats['streets_per_node_counts'][4] / area_km2
             except:
-                row['intersect_density_4way'] = np.NaN
-            row['circuity_avg'] = stats['circuity_avg']
-            row['streets_per_node_avg'] = stats['streets_per_node_avg']
+                row['intersect density 4way'] = np.NaN
+
+
             data_temp[layer] = row
             row = {}
 
@@ -95,16 +102,22 @@ for name, city in cities.items():
             row['$N$'] = G.number_of_nodes()
             row['$L$'] = G.number_of_edges()
             row['$<k>$'] = np.NaN
-            row['area_km2'] = area_km2
-            row['node_density_km'] = np.NaN
-            row['edge_density_km'] = np.NaN
-            row['intersections_count'] = np.NaN
-            row['edge_length_avg'] = np.NaN
-            row['intersect_density_2way'] = np.NaN
-            row['intersect_density_3way'] = np.NaN
-            row['intersect_density_4way'] = np.NaN
-            row['circuity_avg'] = np.NaN
-            row['streets_per_node_avg'] = np.NaN
+            row['$area_km^2$'] = area_km2
+            row['$node density km^2$'] = np.NaN
+            row['$edge density km^2$'] = np.NaN
+            row['edge length avg'] = np.NaN
+            row['street segments count'] = np.NaN
+            row['intersections count'] = np.NaN
+            row['$intersection density km$^2'] = np.NaN
+            row['$edge density km^2$'] = np.NaN
+            row['$street density km^2$'] = np.NaN
+            row['$circuity avg'] = np.NaN
+            row['streets_per node avg'] = np.NaN
+            row['self loop proportion'] = np.NaN
+            row['intersect density 2way'] = np.NaN
+            row['intersect density 3way'] = np.NaN
+            row['intersect density 4way'] = np.NaN
+
             data_temp[layer] = row
             row = {}
 
@@ -116,7 +129,9 @@ df = pd.DataFrame.from_dict({(i,j): cities_dict[i][j]
                            for i in cities_dict.keys()
                            for j in cities_dict[i].keys()})
 df.sort_index(axis=1, level=0, inplace=True, sort_remaining=False)
-df = df.T[['$N$','$L$','$<k>$','area_km2','node_density_km','edge_density_km','intersections_count','edge_length_avg','intersect_density_2way','intersect_density_3way','intersect_density_4way','circuity_avg','streets_per_node_avg']]
+df = df.T[['$N$','$L$','$<k>$','$area_km^2$','$node density km^2$','$edge density km^2$','edge length avg','street segments count','intersections count','$intersection density km$^2','$edge density km^2$','$street density km^2$','$circuity avg','streets_per node avg','self loop proportion','intersect density 2way','intersect density 3way','intersect density 4way']]
+
+
 for column in df:
     df[column] = df.apply(lambda x: "{:,}".format(x[column]), axis=1)
 df.to_csv('/mnt/cns_storage3/luis/outputs/Cities_stats.csv', encoding='utf-8', index=True, na_rep='/')

@@ -128,7 +128,7 @@ for name, city in cities.items():
             plot_layer(G, color, gdf, name, layer)
             print('  + {}{} done in {} min.'.format(name,layer,round((time.time()-start_0)/60,2)))
         else:
-            print('  + {}{} does not have active nodes and links.')
+            print('  + {}{} does not have active nodes and links.'.format(name,layer))
     plot_layer(A, color_edge, gdf, name, '_Area_Structure')
     print('---------------\n{} plotted in {} min.\n---------------\n---------------\n'.format(name,round((time.time()-start_0)/60,2)))
 print('\n\n---------------\nAll cities done in {} min.\n---------------'.format(round((time.time()-start)/60,2)))
