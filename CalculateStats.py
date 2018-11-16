@@ -61,8 +61,7 @@ for name, city in cities.items():
         print('  Starting with {}'.format(layer))
         if len(G.nodes)>0:
             G = ox.project_graph(G, to_crs={'init':'epsg:4326'})
-        print('  + Getting the stats')
-        if len(G.nodes)>0:
+            print('  + Getting the stats')
             stats = ox.basic_stats(G, area=area_m2)
             row = {}
             row['$N$'] = G.number_of_nodes()
@@ -98,6 +97,7 @@ for name, city in cities.items():
             row = {}
 
         else:
+            print('  + The layer is empty')
             row = {}
             row['$N$'] = G.number_of_nodes()
             row['$L$'] = G.number_of_edges()
@@ -123,8 +123,8 @@ for name, city in cities.items():
 
         print('  + Done in {} s.'.format(round(time.time()-start_layer,3)))
     cities_dict[name]=data_temp
-    print('------\n{} done in: {} min.\n------\n------\n\n'.format(name,round((time.time()-start_0)/60,2)))
-print('\n\n------\n------\nAll cities done in {}\n------\n------\n'.format(round((time.time()-start)/60,2)))
+    print('------\n{} done in: {} min.\n------\nElapsed time: {} min\n------\n\n'.format(name,round((time.time()-start_0)/60,2),round((time.time()-start)/60,2))
+print('\n\n------\n------\nAll cities done in {} min.\n------\n------\n'.format(round((time.time()-start)/60,2)))
 df = pd.DataFrame.from_dict({(i,j): cities_dict[i][j]
                            for i in cities_dict.keys()
                            for j in cities_dict[i].keys()})
@@ -132,8 +132,8 @@ df.sort_index(axis=1, level=0, inplace=True, sort_remaining=False)
 df = df.T[['$N$','$L$','$<k>$','$area_km^2$','$node density km^2$','$edge density km^2$','edge length avg','street segments count','intersections count','$intersection density km$^2','$edge density km^2$','$street density km^2$','$circuity avg','streets_per node avg','self loop proportion','intersect density 2way','intersect density 3way','intersect density 4way']]
 
 
-for column in df:
-    df[column] = df.apply(lambda x: "{:,}".format(x[column]), axis=1)
+#for column in df:
+#    df[column] = df.apply(lambda x: "{:,}".format(x[column]), axis=1)
 df.to_csv('/mnt/cns_storage3/luis/outputs/Cities_stats.csv', encoding='utf-8', index=True, na_rep='/')
 print('CSV file saved.')
 with open('/mnt/cns_storage3/luis/outputs/Table1.tex','w') as tf:
