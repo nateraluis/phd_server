@@ -121,6 +121,7 @@ for name, city in cities.items():
             data_temp[layer] = row
             row = {}
 
+
         print('  + Done in {} s.'.format(round(time.time()-start_layer,3)))
     cities_dict[name]=data_temp
     print('------\n{} done in: {} min.\n------\nElapsed time: {} min\n------\n\n'.format(name,round((time.time()-start_0)/60,2),round((time.time()-start)/60,2))
