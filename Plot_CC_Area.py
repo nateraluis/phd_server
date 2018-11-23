@@ -19,12 +19,15 @@ import matplotlib.colors as colors
 from collections import Counter, OrderedDict
 import matplotlib.cm as cm
 import matplotlib.colors as mpcol
+from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True})
+
 
 #Confg osmnx
 
 ox.config(data_folder='/mnt/cns_storage3/luis/Data', logs_folder='/mnt/cns_storage3/luis/logs',
           imgs_folder='/mnt/cns_storage3/luis/imgs', cache_folder='/mnt/cns_storage3/luis/cache',
-          use_cache=True, log_console=True, log_name='osmnx',
+          use_cache=True, log_console=False, log_name='osmnx',
           log_file=True, log_filename='osmnx')
 now = datetime.datetime.now()
 
@@ -65,33 +68,7 @@ def area(G):
     return graph_area_m
 
 
-def plot_nodes_by_cc(cities, layers, colors, shapes, path_plot, normalize):
-    start_t = time.time()
-    fig, axes = plt.subplots(5, 3, figsize=(20,17), sharex=True, sharey=True, constrained_layout=True)
-    for name, ax in zip(cities, axes.flat):
-        print('Starting with {}:'.format(name))
-        for layer, color, shape in zip(layers, colors, shapes):
-            G = load_graph(name, layer)
-            total_n = len(G.nodes())
-            wcc = list(nx.weakly_connected.weakly_connected_component_subgraphs(G))
-            size = [len(cc.nodes())/total_n if normalize==True else len(cc.nodes()) for cc in wcc ]
-            ax.loglog([i+1 for i in range(len(wcc))],(sorted(size, reverse=True)), color=color, marker=shape, label=layer, alpha=0.5)
-            print('  + {} done'.format(layer))
-        ax.spines['right'].set_visible(False)
-        ax.spines['top'].set_visible(False)
-        ax.set_title(name, fontsize=15, pad=6)
-        ax.legend()
-    title = fig.suptitle('Nodes by connected component', fontsize=17,y=1.05)
-    fig.text(0.5, -0.01, 'Connected Components', va='center', ha='center', fontsize=12)
-    if normalize == True:
-        fig.text(-0.01, 0.5, 'Normalized Size', va='center', ha='center', rotation='vertical', fontsize=12)
-        fig.savefig(path_plot+'{}_Cities_NodeConnectedComponent_Normalized.png'.format(now.date()),dpi=300, bbox_inches='tight',bbox_extra_artists=[title])
-    else:
-        fig.text(-0.01, 0.5, 'Size', va='center', ha='center', rotation='vertical', fontsize=12)
-        fig.savefig(path_plot+'{}_Cities_NodeConnectedComponent.png'.format(now.date()),dpi=300, bbox_inches='tight',bbox_extra_artists=[title])
-    print('Plot nodes by wcc done in {} s'.format(time.time()-start_t))
-
-def plot_area_by_cc(cities, layers, colors, shapes, path_plot, normalize):
+def plot_area_by_cc(cities, layers, colors, shapes, path_plot, normalize=True):
     start_t = time.time()
     fig, axes = plt.subplots(5, 3, figsize=(20,17), sharex=True, sharey=True, constrained_layout=True)
     for name, ax in zip(cities, axes.flat):
@@ -119,20 +96,11 @@ def plot_area_by_cc(cities, layers, colors, shapes, path_plot, normalize):
         fig.savefig(path_plot+'{}_Cities_AreaConnectedComponent_Normalized.png'.format(now.date()),dpi=300, bbox_inches='tight',bbox_extra_artists=[title])
     print('Plot nodes by wcc done in {} s'.format(time.time()-start_t))
 
-#Run the script
+
 if __name__ == '__main__':
-    start = time.time()
-    print('Starting the script, go and grab a coffe, it is going to be a long one')
     path_plot = '/mnt/cns_storage3/luis/imgs/ConnectedComponents/'
     assure_path_exists(path_plot)
-    plot_nodes_by_cc(cities, layers, colors, shapes, path_plot, normalize=True)
-    print('-----------\nFirst plot done, elapsed time: {} min.'.format((time.time()-start)/60))
-
-    plot_nodes_by_cc(cities, layers, colors, shapes, path_plot, normalize=False)
-    print('-----------\nSecond plot done, elapsed time: {} min.'.format((time.time()-start)/60))
-
-    plot_area_by_cc(cities, layers, colors, shapes, path_plot, normalize=False)
-    print('-----------\nThird plot done, elapsed time: {} min.'.format((time.time()-start)/60))
-
     plot_area_by_cc(cities, layers, colors, shapes, path_plot, normalize=True)
-    print('-----------\nAll plots done in: {} min.'.format((time.time()-start)/60))
+    print('\n\n------------\n------------\nAll cities normalized done\n------------\n------------\n\n')
+    plot_area_by_cc(cities, layers, colors, shapes, path_plot, normalize=False)
+    print('\n\n------------\n------------\nAll cities done\n------------\n------------\n\n')
