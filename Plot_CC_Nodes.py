@@ -81,43 +81,16 @@ def plot_nodes_by_cc(cities, layers, colors, shapes, path_plot, normalize):
         ax.spines['top'].set_visible(False)
         ax.set_title(name, fontsize=15, pad=6)
         ax.legend()
-    title = fig.suptitle('Nodes by connected component', fontsize=17,y=1.05)
-    fig.text(0.5, -0.01, 'Connected Components', va='center', ha='center', fontsize=12)
+    title = fig.suptitle('Nodes by connected component', fontsize=17,y=1)
+    xlabel = fig.text(0.5, -0.01, 'Connected Components', va='center', ha='center', fontsize=12)
     if normalize == True:
-        fig.text(-0.01, 0.5, 'Normalized Size', va='center', ha='center', rotation='vertical', fontsize=12)
-        fig.savefig(path_plot+'{}_Cities_NodeConnectedComponent_Normalized.png'.format(now.date()),dpi=300, bbox_inches='tight',bbox_extra_artists=[title])
+        ylabel = fig.text(-0.01, 0.5, 'Normalized Size', va='center', ha='center', rotation='vertical', fontsize=12)
+        fig.savefig(path_plot+'{}_Cities_NodeConnectedComponent_Normalized.png'.format(now.date()),dpi=300, bbox_inches='tight',bbox_extra_artists=[title, xlabel, ylabel])
     else:
-        fig.text(-0.01, 0.5, 'Size', va='center', ha='center', rotation='vertical', fontsize=12)
-        fig.savefig(path_plot+'{}_Cities_NodeConnectedComponent.png'.format(now.date()),dpi=300, bbox_inches='tight',bbox_extra_artists=[title])
+        ylabel = fig.text(-0.01, 0.5, 'Size', va='center', ha='center', rotation='vertical', fontsize=12)
+        fig.savefig(path_plot+'{}_Cities_NodeConnectedComponent.png'.format(now.date()),dpi=300, bbox_inches='tight',bbox_extra_artists=[title, xlabel, ylabel])
     print('Plot nodes by wcc done in {} s'.format(time.time()-start_t))
 
-def plot_area_by_cc(cities, layers, colors, shapes, path_plot, normalize):
-    start_t = time.time()
-    fig, axes = plt.subplots(5, 3, figsize=(20,17), sharex=True, sharey=True, constrained_layout=True)
-    for name, ax in zip(cities, axes.flat):
-        print('Starting with {}:'.format(name))
-        for layer, color, shape in zip(layers, colors, shapes):
-            G = load_graph(name, layer)
-            if len(G.nodes()) > 0:
-                G = ox.project_graph(G)
-                total_area = area(G)
-                wcc = list(nx.weakly_connected.weakly_connected_component_subgraphs(G))
-                size = [area(cc) if normalize==False else area(cc)/total_area for cc in wcc]
-                ax.loglog([i+1 for i in range(len(wcc))],(sorted(size, reverse=True)), color=color, marker=shape, label=layer, alpha=0.5)
-                print('  + {} done'.format(layer))
-        ax.spines['right'].set_visible(False)
-        ax.spines['top'].set_visible(False)
-        ax.set_title(name, fontsize=15, pad=6)
-        ax.legend()
-    title = fig.suptitle('Area covered by connected component', fontsize=17,y=1.05)
-    fig.text(0.5, -0.01, 'Connected component', va='center', ha='center', fontsize=12)
-    if normalize==False:
-        fig.text(-0.01, 0.5, r'$Area\ (m^2)$', va='center', ha='center', rotation='vertical', fontsize=12)
-        fig.savefig(path_plot+'{}_Cities_AreaConnectedComponent.png'.format(now.date()),dpi=300, bbox_inches='tight',bbox_extra_artists=[title])
-    else:
-        fig.text(-0.01, 0.5, r'$Area\ Normalized$', va='center', ha='center', rotation='vertical', fontsize=12)
-        fig.savefig(path_plot+'{}_Cities_AreaConnectedComponent_Normalized.png'.format(now.date()),dpi=300, bbox_inches='tight',bbox_extra_artists=[title])
-    print('Plot nodes by wcc done in {} s'.format(time.time()-start_t))
 
 #Run the script
 if __name__ == '__main__':
@@ -130,9 +103,3 @@ if __name__ == '__main__':
 
     plot_nodes_by_cc(cities, layers, colors, shapes, path_plot, normalize=False)
     print('-----------\nSecond plot done, elapsed time: {} min.'.format((time.time()-start)/60))
-
-    plot_area_by_cc(cities, layers, colors, shapes, path_plot, normalize=False)
-    print('-----------\nThird plot done, elapsed time: {} min.'.format((time.time()-start)/60))
-
-    plot_area_by_cc(cities, layers, colors, shapes, path_plot, normalize=True)
-    print('-----------\nAll plots done in: {} min.'.format((time.time()-start)/60))
