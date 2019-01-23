@@ -126,7 +126,7 @@ def get_data(G_bike, name):
         if closest_ij['i'] != closest_ij['j']:
             G_bike.add_edge(closest_ij['i'],closest_ij['j'], length=0)#closest_ij['dist'
         ncc += 1
-        print('{} {}/{} done, elapsed time {} min, avg {} seg'.format(name, ncc, to_iterate, (time.time()-start)/60,(time.time()-start)/ncc))
+        print('{} {}/{} done, elapsed time {} min, avg {} seg, to go: {} min.'.format(name, ncc, to_iterate, round((time.time()-start)/60,2),round((time.time()-start)/ncc,2),round((((time.time()-start)/ncc)*to_iterate-ncc)/60,2)))
     return delta, nodes_cc, length_cc
 
 

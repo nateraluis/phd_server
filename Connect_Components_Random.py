@@ -80,13 +80,14 @@ def get_data(G_bike, name):
     wcc.sort(key=len, reverse=True)
 
     l_temp = 0
-    for e in wcc[0].edges(data=True):
-        l_temp += e[2]['length']
+    #for e in wcc[0].edges(data=True):
+    #    l_temp += e[2]['length']
 
     #Save the initial status
-    length_cc.append(l_temp/1000)
+    #length_cc.append(l_temp/1000)
+    length_cc.append(0)
     delta.append(0)
-    nodes_cc.append(len(wcc[0]))
+    nodes_cc.append(0) #len(wcc[0])
 
     to_iterate = len(wcc)-1
     ncc = 0
@@ -96,7 +97,7 @@ def get_data(G_bike, name):
             wcc = [cc for cc in nx.weakly_connected_component_subgraphs(G_bike)] #Get the WCC's
         closest_ij = closest_pair(wcc) #Find the closest pair of nodes
         if closest_ij['i'] != closest_ij['j']: #Sanity check, the nodes have to be different
-            G_bike.add_edge(closest_ij['i'],closest_ij['j'], length=closest_ij['dist']) #Add the new link
+            G_bike.add_edge(closest_ij['i'],closest_ij['j'], length=0) #Add the new link closest_ij['dist']
             p_delta = delta[-1] #Get the previous aggregated delta
             delta.append(p_delta+closest_ij['dist']) #Record the new sum of deltas
             wcc = [cc for cc in nx.weakly_connected_component_subgraphs(G_bike)] #Get the new WCC's

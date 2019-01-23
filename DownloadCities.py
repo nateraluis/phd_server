@@ -9,7 +9,7 @@ ox.config(data_folder='/mnt/cns_storage3/luis/Data', logs_folder='/mnt/cns_stora
 
 crs_osm = {'init':'epsg:4326'}           #crs that osm uses
 
-
+'''
 cities = {'Phoenix':'Phoenix, Arizona, USA',
           'Amsterdam':'Amsterdam, Netherlands',
           'Detroit':'Detroit, Michigan, USA',
@@ -25,7 +25,8 @@ cities = {'Phoenix':'Phoenix, Arizona, USA',
           'Beihai':'Beihai, China',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
-
+'''
+cities = {'Beijing':'Beijing, China'}
 
 def assure_path_exists(path):
     dir = os.path.dirname(path)
@@ -133,7 +134,7 @@ for name, city in cities.items():
     G_simple = simplify_graph(G)
     nx.write_edgelist(G_simple, path=path_simple+'{}_bike_simple.txt'.format(name))
     print('{} Bike simplified and saved. Elapsed time {} s\nStarting with rail network...\n'.format(name,round(time.time()-start_0,2)))
-    
+
     #Rail
     try:
         G = ox.graph_from_polygon(polygon=geometry, network_type='none',
