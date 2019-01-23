@@ -20,6 +20,7 @@ import random
 import matplotlib.colors as colors
 import matplotlib.cm as cm
 import matplotlib.colors as mpcol
+from itertools import combinations
 from multiprocessing import Pool
 
 #Confg osmnx
@@ -54,17 +55,16 @@ def closest_pair(wcc):
     """
     closest_pair = {'i':0,'j':0,'dist':np.inf}
     pick = random.choice(wcc) #Pick a random component
-    for i in pick.nodes(data=True): #Pick a random component, iterate over its nodes
-        i_coord = (i[1]['y'], i[1]['x'])
-        for cc in wcc:
-            if cc != pick:
-                for j in cc.nodes(data=True):
-                    j_coord = (j[1]['y'], j[1]['x'])
-                    dist = euclidean_dist_vec(i_coord[0],i_coord[1],j_coord[0],j_coord[1])
-                    if dist < closest_pair['dist']:
-                        closest_pair['i'] = i[0]
-                        closest_pair['j'] = j[0]
-                        closest_pair['dist'] = dist
+    for cccc in combinations(wcc, 2):
+        for i in cccc[0].nodes(data=True):
+            i_coord = (i[1]['y'], i[1]['x'])
+            for j in cccc[1].nodes(data=True):
+                j_coord = (j[1]['y'], j[1]['x'])
+                dist = euclidean_dist_vec(i_coord[0],i_coord[1],j_coord[0],j_coord[1])
+                if dist < closest_pair['dist']:
+                    closest_pair['i'] = i[0]
+                    closest_pair['j'] = j[0]
+                    closest_pair['dist'] = dist
     return closest_pair
 
 def get_data(G_bike, name):
@@ -75,28 +75,29 @@ def get_data(G_bike, name):
     delta = []
 
     # 2.- Get weakly connected components and sort them
-    #print('  + Getting the connected components')
+    print('  + Getting the connected components')
     wcc = [cc for cc in nx.weakly_connected_component_subgraphs(G_bike)]
     wcc.sort(key=len, reverse=True)
 
+    #Get the bike KM inside the LCC
     l_temp = 0
-    for e in wcc[0].edges(data=True):
-        l_temp += e[2]['length']
+    #for e in wcc[0].edges(data=True):
+    #    l_temp += e[2]['length']
 
-    #Save the initial status
-    length_cc.append(l_temp/1000)
-    delta.append(0)
-    nodes_cc.append(len(wcc[0]))
+    #Save the current status
+    length_cc.append(l_temp) #Bike km
+    delta.append(0) #Delta_x 0
+    #nodes_cc.append(len(wcc[0])) #Number of nodes inside the LCC
+    nodes_cc.append(0) #Number of nodes inside the LCC
 
     to_iterate = len(wcc)-1
     ncc = 0
-    print('  + Starting the loop:')
-    for it in range(to_iterate): #loop over N-1 components
+    for it in range(to_iterate):
         if it == 0:
             wcc = [cc for cc in nx.weakly_connected_component_subgraphs(G_bike)] #Get the WCC's
         closest_ij = closest_pair(wcc) #Find the closest pair of nodes
         if closest_ij['i'] != closest_ij['j']: #Sanity check, the nodes have to be different
-            G_bike.add_edge(closest_ij['i'],closest_ij['j'], length=closest_ij['dist']) #Add the new link
+            G_bike.add_edge(closest_ij['i'],closest_ij['j'], length=0) #Add the new link closest_ij['dist']
             p_delta = delta[-1] #Get the previous aggregated delta
             delta.append(p_delta+closest_ij['dist']) #Record the new sum of deltas
             wcc = [cc for cc in nx.weakly_connected_component_subgraphs(G_bike)] #Get the new WCC's
@@ -116,14 +117,16 @@ def main(name):
     #Global_start = time.time()
     path_plot = '/mnt/cns_storage3/luis/imgs/Percolation/'
     assure_path_exists(path_plot)
+    print('Path ready')
     #for name in cities:
     print('Starting with {}'.format(name))
     G_bike = load_graph(name, 'bike')
     data_path = '/mnt/cns_storage3/luis/Data/WCC/'
     assure_path_exists(data_path)
+    print(' + Data loaded\n + Starting the calculations:')
     delta, nodes_cc, length_cc = get_data(G_bike, name )
     df = pd.DataFrame(np.column_stack([delta, nodes_cc, length_cc]), columns=['delta', 'nodes_cc', 'length_cc'])
-    df.to_csv(data_path+'{}_CC_Random_data.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None, compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
+    df.to_csv(data_path+'{}_CC_SmallestDelta_data.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None, compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
     print('{} done\n------------\n------------\n\n'.format(name))
 
 if __name__ == '__main__':

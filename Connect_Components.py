@@ -1,5 +1,6 @@
 '''
 Script to connect and analyze the different connected components on the bicycle layer of the cities.
+This is a greedy algorithm that connects the two LCC's in each iteration.
 '''
 
 #Imports
@@ -28,20 +29,43 @@ ox.config(data_folder='/mnt/cns_storage3/luis/Data', logs_folder='/mnt/cns_stora
 now = datetime.datetime.now()
 
 
-#Auxiliar functions
+#Working functions
 def assure_path_exists(path):
+    '''
+    Check if the path to one folder exists and if not create it.
+    ---
+    path: str containing the path to check
+    '''
     dir = os.path.dirname(path)
     if not os.path.exists(dir):
         os.makedirs(dir)
 
 def load_graph(name, layer):
+    '''
+    Load the graph into the script.
+    ---
+    name: str name of the city to be loaded
+    layer: str layer to be loaded, it can be: drive, bike, walk, rail.
+
+    returns: Networkx MultiDiGraph
+    '''
     return ox.load_graphml('{}/{}_{}.graphml'.format(name, name, layer))
 
 def euclidean_dist_vec(y1,x1,y2,x2):
+    '''
+    Calculate the euclidean distance between two points.
+    '''
     distance = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
     return distance
 
 def closest_pair(wcc):
+    '''
+    Find the closest pair of nodes between two different connected components.
+    ---
+    wcc: list connected components
+
+    returns: dict nodes i and j and distance
+    '''
     closest_pair = {'i':0,'j':0,'dist':np.inf}
     for i in wcc[0].nodes(data=True):
         i_coord = (i[1]['y'], i[1]['x'])
@@ -59,6 +83,7 @@ def get_data(G_bike, name):
     # 0.- Create lists to store data
     nodes_cc = []
     length_cc = []
+    directness = []
     delta = []
 
     # 2.- Get weakly connected components and sort them
@@ -66,68 +91,44 @@ def get_data(G_bike, name):
     wcc = [cc for cc in nx.weakly_connected_component_subgraphs(G_bike)]
     wcc.sort(key=len, reverse=True)
 
+    #Get the bike KM inside the LCC
     l_temp = 0
-    for e in wcc[0].edges(data=True):
-        l_temp += e[2]['length']
+    #for e in wcc[0].edges(data=True):
+    #    l_temp += e[2]['length']
 
     #Save the current status
-    length_cc.append(l_temp/1000)
-    delta.append(0)
-    nodes_cc.append(len(wcc[0]))
-
-    to_iterate = len(wcc)-1
+    length_cc.append(l_temp) #Bike km
+    delta.append(0) #Delta_x 0
+    #nodes_cc.append(len(wcc[0])) #Number of nodes inside the LCC
+    nodes_cc.append(0) #Number of nodes inside the LCC
+    to_iterate = len(wcc)-1 #We'll iterate over n-1 connected components
     ncc = 0
     print('  + Starting the loop:')
     for cc in range(to_iterate):
-        wcc = [cc for cc in nx.weakly_connected_component_subgraphs(G_bike)]
-        wcc.sort(key=len, reverse=True)
-        #print('   + Looking for closest pair of nodes...')
-        closest_ij = closest_pair(wcc)
-        #print('   + Clossest pair of nodes found: {}'.format(closest_ij))
-        p_delta = delta[-1]
-        delta.append(p_delta+closest_ij['dist'])
-        nodes_cc.append(len(wcc[0])+len(wcc[1]))
+        wcc = [cc for cc in nx.weakly_connected_component_subgraphs(G_bike)] #Get a list of the WCC
+        wcc.sort(key=len, reverse=True) #Sort the list from the largest to smallest
+        closest_ij = closest_pair(wcc) #Get the clossest pair of nodes between the two LCC's
+        p_delta = delta[-1] #Get the latest delta
+        delta.append(p_delta+closest_ij['dist']) #Add the new delta measure to the list of deltas
+        nodes_cc.append(len(wcc[0])+len(wcc[1])) #Record the new number of nodes inside the LCC after merging the two LCC's
         l_temp = 0
         for e in wcc[0].edges(data=True):
-            l_temp += e[2]['length']
+            try:
+                l_temp += e[2]['length']
+            except:
+                pass
         for e in wcc[1].edges(data=True):
-            l_temp += e[2]['length']
+            try:
+                l_temp += e[2]['length']
+            except:
+                pass
         length_cc.append(l_temp/1000)
         if closest_ij['i'] != closest_ij['j']:
-            G_bike.add_edge(closest_ij['i'],closest_ij['j'], length=closest_ij['dist'])
+            G_bike.add_edge(closest_ij['i'],closest_ij['j'], length=0)#closest_ij['dist'
         ncc += 1
         print('{} {}/{} done, elapsed time {} min, avg {} seg'.format(name, ncc, to_iterate, (time.time()-start)/60,(time.time()-start)/ncc))
     return delta, nodes_cc, length_cc
 
-def make_plots(name, delta, nodes_cc, length_cc, path_plot):
-    shapes = ['.', '*', '+', 'x']
-    colors = ['#fc8d62','#8da0cb','#e78ac3','#66c2a5']
-    ylabels = ['N','Km','N','Km']
-    labels = ['Connected Nodes', 'Connected Km', 'Connected Nodes (norm)', 'Connected Km (norm)']
-    nodes_cc_norm = [n/nodes_cc[-1] for n in nodes_cc]
-    length_cc_norm = [cc/length_cc[-1] for cc in length_cc]
-    data = [nodes_cc, length_cc, nodes_cc_norm, length_cc_norm]
-    fig, axes = plt.subplots(2, 2, figsize=(20,17), sharex=True, sharey=False, constrained_layout=True)
-    print('  Starting the ploting')
-    for d, ax, shape, label, ylab, color in zip(data, axes.flat, shapes, labels, ylabels, colors):
-        ax.plot(delta, d, marker=shape, label=label, color=color, linewidth=0.5)
-        ax.spines['right'].set_visible(False)
-        ax.spines['top'].set_visible(False)
-        ax.set_title(label, fontsize=15, pad=6)
-        ax.set_ylabel(ylab, fontsize=10)
-        ax.set_xlabel(r'$\Delta_x$', fontsize=10)
-    title = fig.suptitle(name, fontsize=17,y=1)
-    fig.savefig(path_plot+'{}_{}_Delta.png'.format(now.date(),name),dpi=300, bbox_inches='tight',bbox_extra_artists=[title])
-
-    fig, ax = plt.subplots(figsize=(16,9))
-    ax.plot(delta, nodes_cc_norm, marker=shapes[2], color=colors[2], label='Nodes')
-    ax.plot(delta, length_cc_norm,marker=shapes[3], color=colors[3], label='Km')
-    ax.legend(frameon=False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.set_title(r'{} Nodes and Km Increase by $\Delta_x$'.format(name), fontsize=18, pad=6)
-    ax.set_xlabel(r'$\Delta_x\ (m)$', fontsize=14)
-    fig.savefig(path_plot+'{}_{}_N_KM_norm.png'.format(now.date(),name),dpi=300, bbox_inches='tight')
 
 def main(name):
     #Global_start = time.time()
@@ -143,7 +144,6 @@ def main(name):
     delta, nodes_cc, length_cc = get_data(G_bike, name )
     df = pd.DataFrame(np.column_stack([delta, nodes_cc, length_cc]), columns=['delta', 'nodes_cc', 'length_cc'])
     df.to_csv(data_path+'{}_CC_data.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None, compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
-    make_plots(name, delta, nodes_cc, length_cc, path_plot)
     print('{} done\n------------\n------------\n\n'.format(name))
         #End of loop
     #print('All cities done in {} min'.format((time.time()-Global_start)/60))
