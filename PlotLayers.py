@@ -19,21 +19,21 @@ colors_layers = ['#e9c46a','#e76f51','#f4a261','#264653']
 names = ['_walk', '_bike', '_rail', '_drive']
 now = datetime.datetime.now()
 
-cities = {'Phoenix':'Phoenix, Arizona, USA',
-          'Amsterdam':'Amsterdam, Netherlands',
-          'Detroit':'Detroit, Michigan, USA',
-          'Manhattan':'Manhattan, New York City, New York, USA',
-          'Mexico':'DF, Mexico',
-          'London':'London, England',
-          'Singapore':'Singapore, Singapore',
-          'Budapest':'Budapest, Hungary',
-          'Copenhagen':'Copenhagen Municipality, Denmark',
-          'Barcelona':'Barcelona, Catalunya, Spain',
-          'Portland':'Portland, Oregon, USA',
-          'Bogota':'Bogotá, Colombia',
+cities = {#'Phoenix':'Phoenix, Arizona, USA',
+          #'Amsterdam':'Amsterdam, Netherlands',
+          #'Detroit':'Detroit, Michigan, USA',
+          #'Manhattan':'Manhattan, New York City, New York, USA',
+          #'Mexico':'DF, Mexico',
+          #'London':'London, England',
+          #'Singapore':'Singapore, Singapore',
+          #'Budapest':'Budapest, Hungary',
+          #'Copenhagen':'Copenhagen Municipality, Denmark',
+          #'Barcelona':'Barcelona, Catalunya, Spain',
+          #'Portland':'Portland, Oregon, USA',
+          #'Bogota':'Bogotá, Colombia',
           'Sydney':'Sydney, Australia',
-          'LA':'Los Angeles, Los Angeles County, California, USA',
-          'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
+          #'LA':'Los Angeles, Los Angeles County, California, USA',
+          #'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 
 def assure_path_exists(path):
     dir = os.path.dirname(path)
