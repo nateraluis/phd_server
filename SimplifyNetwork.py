@@ -12,8 +12,7 @@ cities = {'Phoenix':'Phoenix, Arizona, USA',
           'Copenhagen':'Copenhagen Municipality, Denmark',
           'Barcelona':'Barcelona, Catalunya, Spain',
           'Portland':'Portland, Oregon, USA',
-          'Bogota':'Bogotá, Colombia',
-          'Melbourne':'Melbourne, Australia',
+          'Bogota':'Bogotá, Colombia',      
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 
