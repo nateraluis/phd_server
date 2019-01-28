@@ -22,8 +22,8 @@ import matplotlib.colors as mpcol
 from multiprocessing import Pool
 
 #Confg osmnx
-ox.config(data_folder='/mnt/cns_storage3/luis/Data', logs_folder='/mnt/cns_storage3/luis/logs',
-          imgs_folder='/mnt/cns_storage3/luis/imgs', cache_folder='/mnt/cns_storage3/luis/cache',
+ox.config(data_folder='../Data', logs_folder='../logs',
+          imgs_folder='../imgs', cache_folder='../cache',
           use_cache=True, log_console=False, log_name='osmnx',
           log_file=True, log_filename='osmnx')
 now = datetime.datetime.now()
@@ -126,19 +126,15 @@ def get_data(G_bike, name):
         if closest_ij['i'] != closest_ij['j']:
             G_bike.add_edge(closest_ij['i'],closest_ij['j'], length=0)#closest_ij['dist'
         ncc += 1
-        print('{} {}/{} done, elapsed time {} min, avg {} seg, to go: {} min.'.format(name, ncc, to_iterate, round((time.time()-start)/60,2),round((time.time()-start)/ncc,2),round((((time.time()-start)/ncc)*to_iterate-ncc)/60,2)))
+        print('{} {}/{} done, elapsed time {} min, avg {} seg, to go: {} min.'.format(name, ncc, to_iterate, round((time.time()-start)/60,2),round((time.time()-start)/ncc,2),round((((time.time()-start)/ncc)*(to_iterate-ncc))/60,2)))
     return delta, nodes_cc, length_cc
 
 
 def main(name):
-    #Global_start = time.time()
-    path_plot = '/mnt/cns_storage3/luis/imgs/Percolation/'
-    assure_path_exists(path_plot)
-    print('Path ready')
     #for name in cities:
     print('Starting with {}'.format(name))
     G_bike = load_graph(name, 'bike')
-    data_path = '/mnt/cns_storage3/luis/Data/WCC/'
+    data_path = '../Data/WCC/'
     assure_path_exists(data_path)
     print(' + Data loaded\n + Starting the calculations:')
     delta, nodes_cc, length_cc = get_data(G_bike, name )
@@ -150,22 +146,22 @@ def main(name):
 
 if __name__ == '__main__':
     Global_start = time.time()
-    cities = {'Amsterdam':'Amsterdam, Netherlands',
-              'Barcelona':'Barcelona, Catalunya, Spain',
-              'Beihai':'Beihai, China',
-              'Bogota':'Bogotá, Colombia',
+    cities = {'Phoenix':'Phoenix, Arizona, USA',
+              'Detroit':'Detroit, Michigan, USA',
+              'Manhattan':'Manhattan, New York City, New York, USA',
+              'Amsterdam':'Amsterdam, Netherlands',
+              'Mexico':'DF, Mexico',
+              'London':'London, England',
+              'Singapore':'Singapore, Singapore',
               'Budapest':'Budapest, Hungary',
               'Copenhagen':'Copenhagen Municipality, Denmark',
-              'Detroit':'Detroit, Michigan, USA',
-              'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia',
-              'LA':'Los Angeles, Los Angeles County, California, USA',
-              'London':'London, England',
-              'Manhattan':'Manhattan, New York City, New York, USA',
-              'Mexico':'DF, Mexico',
-              'Phoenix':'Phoenix, Arizona, USA',
+              'Barcelona':'Barcelona, Catalunya, Spain',
               'Portland':'Portland, Oregon, USA',
-              'Singapore':'Singapore, Singapore'}
+              'Bogota':'Bogotá, Colombia',
+              'Shanghai':'Shanghai, China',
+              'LA':'Los Angeles, Los Angeles County, California, USA',
+              'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
-    pool = Pool()
+    pool = Pool(processes=10)
     pool.map(main, cities)
     print('All cities done in {} min'.format((time.time()-Global_start)/60))
