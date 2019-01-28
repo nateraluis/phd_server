@@ -2,8 +2,8 @@ import os, osmnx as ox, geopandas as gpd, pandas as pd, networkx as nx, time
 
 
 useful_tags = ox.settings.useful_tags_path + ['cycleway']
-ox.config(data_folder='/mnt/cns_storage3/luis/Data', logs_folder='/mnt/cns_storage3/luis/logs',
-          imgs_folder='/mnt/cns_storage3/luis/imgs', cache_folder='/mnt/cns_storage3/luis/cache',
+ox.config(data_folder='../Data', logs_folder='../logs',
+          imgs_folder='../imgs', cache_folder='../cache',
           use_cache=True, log_console=False, useful_tags_path=useful_tags, log_name='osmnx',
           log_file=True, log_filename='osmnx')
 
@@ -22,11 +22,11 @@ cities = {'Phoenix':'Phoenix, Arizona, USA',
           'Barcelona':'Barcelona, Catalunya, Spain',
           'Portland':'Portland, Oregon, USA',
           'Bogota':'Bogotá, Colombia',
-          'Beihai':'Beihai, China',
+          'Sydney':'Sydney, Australia',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 '''
-cities = {'Shanghai':'Shanghai, China'}
+cities = {'Sydney':'Sydney, Australia'}
 
 def assure_path_exists(path):
     dir = os.path.dirname(path)
@@ -89,16 +89,16 @@ start = time.time()
 for name, city in cities.items():
     start_0 = time.time()
 
-    path = '/mnt/cns_storage3/luis/Data/{}/'.format(name)
+    path = '../Data/{}/'.format(name)
     assure_path_exists(path)
 
-    path_simple = '/mnt/cns_storage3/luis/Data/{}/simple/'.format(name)
+    path_simple = '../Data/{}/simple/'.format(name)
     assure_path_exists(path_simple)
 
     print('Starting with: {}'.format(name))
 
     #Load the gemoetry
-    gdf = gpd.read_file('/mnt/cns_storage3/luis/Data/{}/{}_shape/'.format(name, name))
+    gdf = gpd.read_file('../Data/{}/{}_shape/'.format(name, name))
     gdf = gdf.to_crs(crs_osm)
     geometry = gdf.unary_union
     print('{} geometry loaded, starting the download...'.format(name))

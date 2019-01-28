@@ -158,7 +158,7 @@ if __name__ == '__main__':
               'Barcelona':'Barcelona, Catalunya, Spain',
               'Portland':'Portland, Oregon, USA',
               'Bogota':'Bogotá, Colombia',
-              'Shanghai':'Shanghai, China',
+              'Sydney':'Sydney, Australia',
               'LA':'Los Angeles, Los Angeles County, California, USA',
               'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')

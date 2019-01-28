@@ -15,7 +15,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 
 useful_tags = ox.settings.useful_tags_path + ['cycleway']
-ox.config(data_folder='data', logs_folder='logs',
+ox.config(data_folder='Data', logs_folder='logs',
           imgs_folder='imgs', cache_folder='cache',
           use_cache=True, log_console=True, useful_tags_path=useful_tags)
 
@@ -133,7 +133,7 @@ cities = {'Phoenix':'Phoenix, Arizona, USA',
           'Barcelona':'Barcelona, Catalunya, Spain',
           'Portland':'Portland, Oregon, USA',
           'Bogota':'Bogotá, Colombia',
-          'Beihai':'Beihai, China',
+          'Sydney':'Sydney, Australia',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 

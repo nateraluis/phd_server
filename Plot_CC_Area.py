@@ -25,8 +25,8 @@ rcParams.update({'figure.autolayout': True})
 
 #Confg osmnx
 
-ox.config(data_folder='/mnt/cns_storage3/luis/Data', logs_folder='/mnt/cns_storage3/luis/logs',
-          imgs_folder='/mnt/cns_storage3/luis/imgs', cache_folder='/mnt/cns_storage3/luis/cache',
+ox.config(data_folder='../Data', logs_folder='../logs',
+          imgs_folder='../imgs', cache_folder='../cache',
           use_cache=True, log_console=False, log_name='osmnx',
           log_file=True, log_filename='osmnx')
 now = datetime.datetime.now()
@@ -34,7 +34,7 @@ now = datetime.datetime.now()
 #Cities and layers to analyze
 cities = {'Amsterdam':'Amsterdam, Netherlands',
           'Barcelona':'Barcelona, Catalunya, Spain',
-          'Beihai':'Beihai, China',
+          'Sydney':'Sydney, Australia',
           'Bogota':'Bogotá, Colombia',
           'Budapest':'Budapest, Hungary',
           'Copenhagen':'Copenhagen Municipality, Denmark',
@@ -99,7 +99,7 @@ def plot_area_by_cc(cities, layers, colors, shapes, path_plot, normalize=True):
 
 if __name__ == '__main__':
     start_time = time.time()
-    path_plot = '/mnt/cns_storage3/luis/imgs/ConnectedComponents/'
+    path_plot = '../imgs/ConnectedComponents/'
     assure_path_exists(path_plot)
     plot_area_by_cc(cities, layers, colors, shapes, path_plot, normalize=True)
     print('\n\n------------\n------------\nAll cities normalized done in {} min.\n------------\n------------\n\n'.format((time.time()-start_time)/60))

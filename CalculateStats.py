@@ -32,7 +32,7 @@ cities = {'Phoenix':'Phoenix, Arizona, USA',
           'Barcelona':'Barcelona, Catalunya, Spain',
           'Portland':'Portland, Oregon, USA',
           'Bogota':'Bogotá, Colombia',
-          'Shanghai':'Shanghai, China',
+          'Sydney':'Sydney, Australia',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 
@@ -100,7 +100,7 @@ df = pd.DataFrame.from_dict({(i,j): cities_dict[i][j]
                            for i in cities_dict.keys()
                            for j in cities_dict[i].keys()})
 df.sort_index(axis=1, level=0, inplace=True, sort_remaining=False)
-df = df.T[['$area_km^2$','$N$','$L$','$<k>$','$node density km^2$','$edge density km^2$','$edge length avg$', '$edge length total$','Connected Components']]
+df = df.T[['$Area km^2$','$N$','$L$','$<k>$','$Node density km^2$','$Edge density km^2$','$Edge length avg$', '$Edge length total$','Connected Components']]
 
 
 

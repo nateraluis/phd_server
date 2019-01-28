@@ -10,8 +10,8 @@ import time
 import os
 
 
-ox.config(data_folder='/mnt/cns_storage3/luis/Data', logs_folder='/mnt/cns_storage3/luis/logs',
-          imgs_folder='/mnt/cns_storage3/luis/imgs', cache_folder='/mnt/cns_storage3/luis/cache',
+ox.config(data_folder='../Data', logs_folder='../logs',
+          imgs_folder='../imgs', cache_folder='../cache',
           use_cache=True, log_console=False, log_name='osmnx',
           log_file=True, log_filename='osmnx')
 
@@ -27,7 +27,7 @@ cities = {'Amsterdam':'Amsterdam, Netherlands',
           'Barcelona':'Barcelona, Catalunya, Spain',
           'Portland':'Portland, Oregon, USA',
           'Bogota':'Bogotá, Colombia',
-          'Beihai':'Beihai, China',
+          'Sydney':'Sydney, Australia',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 
@@ -84,7 +84,7 @@ def plot_wcc_graph(G, name, wcc, path_plot, filter_wcc=False, n_cc=0):
 
 def main(cities):
     for name in cities:
-        path_plot = '/mnt/cns_storage3/luis/imgs/ConnectedComponents/CCOverNetwork/{}/'.format(name)
+        path_plot = '../imgs/ConnectedComponents/CCOverNetwork/{}/'.format(name)
         assure_path_exists(path_plot)
 
         st = time.time()

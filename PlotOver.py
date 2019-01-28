@@ -11,8 +11,8 @@ from descartes import PolygonPatch
 from shapely.geometry import Polygon, MultiPolygon
 
 start = time.time()
-ox.config(data_folder='/mnt/cns_storage3/luis/Data', logs_folder='/mnt/cns_storage3/luis/logs',
-          imgs_folder='/mnt/cns_storage3/luis/imgs', cache_folder='/mnt/cns_storage3/luis/cache',
+ox.config(data_folder='../Data', logs_folder='../logs',
+          imgs_folder='../imgs', cache_folder='../cache',
           use_cache=True, log_console=False, log_name='osmnx',
           log_file=True, log_filename='osmnx')
 
@@ -32,7 +32,7 @@ cities = {'Amsterdam':'Amsterdam, Netherlands',
           'Barcelona':'Barcelona, Catalunya, Spain',
           'Portland':'Portland, Oregon, USA',
           'Bogota':'Bogotá, Colombia',
-          'Beihai':'Beihai, China',
+          'Sydney':'Sydney, Australia',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 
@@ -64,12 +64,12 @@ for name, city in cities.items():
     print('---------------\nStarting with {}'.format(name))
 
     #1.- Generate the path where the data is stored and where it is going to be saved
-    path = '/mnt/cns_storage3/luis/Data/{}/'.format(name)
-    path_plot = '/mnt/cns_storage3/luis/imgs/structure/{}/'.format(name)
+    path = '../Data/{}/'.format(name)
+    path_plot = '../imgs/structure/{}/'.format(name)
     assure_path_exists(path_plot)
 
     #2.- Load the area
-    gdf = gpd.read_file('/mnt/cns_storage3/luis/Data/{}/{}_shape/'.format(name, name))
+    gdf = gpd.read_file('../Data/{}/{}_shape/'.format(name, name))
     gdf = ox.project_gdf(gdf, to_crs={'init':'epsg:4326'})
     print('  + Geometry loaded')
 

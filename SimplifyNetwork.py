@@ -13,12 +13,12 @@ cities = {'Phoenix':'Phoenix, Arizona, USA',
           'Barcelona':'Barcelona, Catalunya, Spain',
           'Portland':'Portland, Oregon, USA',
           'Bogota':'Bogotá, Colombia',
-          'Beihai':'Beihai, China',
+          'Sydney':'Sydney, Australia',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 
-ox.config(data_folder='/mnt/cns_storage3/luis/Data', logs_folder='/mnt/cns_storage3/luis/logs',
-          imgs_folder='/mnt/cns_storage3/luis/imgs', cache_folder='/mnt/cns_storage3/luis/cache',
+ox.config(data_folder='../Data', logs_folder='../logs',
+          imgs_folder='../imgs', cache_folder='../cache',
           use_cache=True, log_console=False, log_name='osmnx',
           log_file=True, log_filename='osmnx')
 
@@ -27,7 +27,7 @@ layers = ['drive', 'walk', 'bike', 'rail']
 for name, city in cities.items():
     print('Starting with {}'.format(name))
     for layer in layers:
-        path = '/mnt/cns_storage3/luis/Data/{}/'.format(name)
+        path = '../Data/{}/'.format(name)
         G = ox.load_graphml('{}_{}.graphml'.format(name, layer), folder=path)
         degree = list(G.degree())
         remove=[]
