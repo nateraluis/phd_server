@@ -32,7 +32,7 @@ cities = {'Amsterdam':'Amsterdam, Netherlands',
           'Barcelona':'Barcelona, Catalunya, Spain',
           'Portland':'Portland, Oregon, USA',
           'Bogota':'Bogotá, Colombia',
-          'Sydney':'Sydney, Australia',
+          'Melbourne':'Melbourne, Australia',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 

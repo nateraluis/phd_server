@@ -31,7 +31,7 @@ now = datetime.datetime.now()
 #Cities and layers to analyze
 cities = {'Amsterdam':'Amsterdam, Netherlands',
           'Barcelona':'Barcelona, Catalunya, Spain',
-          'Sydney':'Sydney, Australia',
+          'Melbourne':'Melbourne, Australia',
           'Bogota':'Bogotá, Colombia',
           'Budapest':'Budapest, Hungary',
           'Copenhagen':'Copenhagen Municipality, Denmark',

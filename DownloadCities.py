@@ -22,11 +22,11 @@ cities = {'Phoenix':'Phoenix, Arizona, USA',
           'Barcelona':'Barcelona, Catalunya, Spain',
           'Portland':'Portland, Oregon, USA',
           'Bogota':'Bogotá, Colombia',
-          'Sydney':'Sydney, Australia',
+          'Melbourne':'Melbourne, Australia',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 '''
-cities = {'Sydney':'Sydney, Australia'}
+cities = {'Melbourne':'Melbourne, Australia'}
 
 def assure_path_exists(path):
     dir = os.path.dirname(path)
