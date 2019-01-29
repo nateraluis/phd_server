@@ -67,11 +67,11 @@ for name, city in cities.items():
             row['$N$'] = G.number_of_nodes()
             row['$L$'] = G.number_of_edges()
             row['$<k>$'] = round(stats['k_avg'],3)
-            row['$Node\ densit\y km^2$'] = round(stats['node_density_km'],3)
+            row['$Node\ density\ km^2$'] = round(stats['node_density_km'],3)
             row['$Edge\ density\ km^2$'] = round(stats['edge_density_km'],3)
             row['$Edge\ length\ avg$'] = round(stats['edge_length_avg'],3)
             row['$Edge\ length\ total$'] = round(stats['edge_length_total'],3)
-            row['Connected\ Components'] = len(list(nx.weakly_connected_component_subgraphs(G)))
+            row['$Connected\ Components$'] = len(list(nx.weakly_connected_component_subgraphs(G)))
             data_temp[layer] = row
             row = {}
 
@@ -99,7 +99,7 @@ df = pd.DataFrame.from_dict({(i,j): cities_dict[i][j]
                            for i in cities_dict.keys()
                            for j in cities_dict[i].keys()})
 df.sort_index(axis=1, level=0, inplace=True, sort_remaining=False)
-df = df.T[['$Area\ km^2$','$N$','$L$','$<k>$','$Node\ density\ km^2$','$Edge\ density\ km^2$','$Edge\ length\ avg$', '$Edge\ length\ total$','$Connected\ Components$']]
+df = df.T[['$Area km^2$','$N$','$L$','$<k>$','$Node\ density\ km^2$','$Edge\ density\ km^2$','$Edge\ length\ avg$', '$Edge\ length\ total$','$Connected\ Components$']]
 
 
 
