@@ -127,6 +127,8 @@ def get_data(G_bike, name):
             G_bike.add_edge(closest_ij['i'],closest_ij['j'], length=0)#closest_ij['dist'
         ncc += 1
         print('{} {}/{} done, elapsed time {} min, avg {} seg, to go: {} min.'.format(name, ncc, to_iterate, round((time.time()-start)/60,2),round((time.time()-start)/ncc,2),round((((time.time()-start)/ncc)*(to_iterate-ncc))/60,2)))
+        if delta[-1] > 200000:
+            break
     return delta, nodes_cc, length_cc
 
 
@@ -157,7 +159,7 @@ if __name__ == '__main__':
               'Copenhagen':'Copenhagen Municipality, Denmark',
               'Barcelona':'Barcelona, Catalunya, Spain',
               'Portland':'Portland, Oregon, USA',
-              'Bogota':'Bogotá, Colombia',  
+              'Bogota':'Bogotá, Colombia',
               'LA':'Los Angeles, Los Angeles County, California, USA',
               'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
