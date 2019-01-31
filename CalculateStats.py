@@ -63,12 +63,12 @@ for name, city in cities.items():
             print('  + Getting the stats')
             stats = ox.basic_stats(G, area=area_m2)
             row = {}
-            row['$Area\ km^2$'] = round(area_km2,3)
+            row['$Area\ km^2$'] = area_km2
             row['$N$'] = G.number_of_nodes()
             row['$L$'] = G.number_of_edges()
             row['$<k>$'] = round(stats['k_avg'],3)
-            row['$Node\ density\ km^2$'] = round(stats['node_density_km'],3)
-            row['$Edge\ density\ km^2$'] = round(stats['edge_density_km'],3)
+            row['$Node\ density\ km^2$'] = round((G.number_of_nodes()/area_km2),3)
+            row['$Edge\ density\ km^2$'] = round((G.number_of_edges()/area_km2),3)
             row['$Edge\ length\ avg$'] = round(stats['edge_length_avg'],3)
             row['$Edge\ length\ total$'] = round(stats['edge_length_total'],3)
             row['$Connected\ Components$'] = len(list(nx.weakly_connected_component_subgraphs(G)))
