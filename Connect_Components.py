@@ -103,6 +103,8 @@ def get_data(G_bike, name):
     delta.append(0) #Delta_x 0
     #nodes_cc.append(len(wcc[0])) #Number of nodes inside the LCC
     nodes_cc.append(0) #Number of nodes inside the LCC
+    i_s.append(0)
+    j_s.append(0)
     to_iterate = len(wcc)-1 #We'll iterate over n-1 connected components
     ncc = 0
     print('  + Starting the loop:')

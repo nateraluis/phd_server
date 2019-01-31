@@ -90,6 +90,8 @@ def get_data(G_bike, name):
     length_cc.append(0)
     delta.append(0)
     nodes_cc.append(0) #len(wcc[0])
+    i_s.append(0)
+    j_s.append(0)
 
     to_iterate = len(wcc)-1
     ncc = 0
