@@ -73,6 +73,8 @@ def get_data(G_bike, name):
     nodes_cc = []
     length_cc = []
     delta = []
+    i_s = []
+    j_s = []
 
     # 2.- Get weakly connected components and sort them
     print('  + Getting the connected components')
@@ -97,6 +99,8 @@ def get_data(G_bike, name):
             wcc = [cc for cc in nx.weakly_connected_component_subgraphs(G_bike)] #Get the WCC's
         closest_ij = closest_pair(wcc) #Find the closest pair of nodes
         if closest_ij['i'] != closest_ij['j']: #Sanity check, the nodes have to be different
+            i_s.append(closest_ij['i']) #Store the sequence of links connected
+            j_s.append(closest_ij['j'])
             G_bike.add_edge(closest_ij['i'],closest_ij['j'], length=0) #Add the new link closest_ij['dist']
             p_delta = delta[-1] #Get the previous aggregated delta
             delta.append(p_delta+closest_ij['dist']) #Record the new sum of deltas
@@ -111,7 +115,7 @@ def get_data(G_bike, name):
         print('{} {}/{} done, elapsed time {} min, avg {} seg, to go: {} min.'.format(name, ncc, to_iterate, round((time.time()-start)/60,2),round((time.time()-start)/ncc,2),round((((time.time()-start)/ncc)*to_iterate-ncc)/60,2)))
         if delta[-1] > 200000:
             break
-    return delta, nodes_cc, length_cc
+    return delta, nodes_cc, length_cc, i_s, j_s
 
 
 
@@ -126,8 +130,8 @@ def main(name):
     data_path = '../Data/WCC/'
     assure_path_exists(data_path)
     print(' + Data loaded\n + Starting the calculations:')
-    delta, nodes_cc, length_cc = get_data(G_bike, name )
-    df = pd.DataFrame(np.column_stack([delta, nodes_cc, length_cc]), columns=['delta', 'nodes_cc', 'length_cc'])
+    delta, nodes_cc, length_cc, i_s, j_s = get_data(G_bike, name )
+    df = pd.DataFrame(np.column_stack([delta, nodes_cc, length_cc, i_s, j_s]), columns=['delta', 'nodes_cc', 'length_cc', 'i', 'j'])
     df.to_csv(data_path+'{}_CC_SmallestDelta_data.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None, compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
     print('{} done\n------------\n------------\n\n'.format(name))
 
