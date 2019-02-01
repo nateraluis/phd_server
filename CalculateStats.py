@@ -49,7 +49,7 @@ for name, city in cities.items():
     path = '../Data/{}'.format(name)
     gdf = gpd.read_file('../Data/{}/{}_shape/'.format(name, name))
     print('Area loaded')
-    gdf = ox.project_gdf(gdf, to_crs={'init':'epsg:4326'})
+    gdf = ox.project_gdf(gdf, to_crs={'init':'epsg:32633'}) #projection to meters to calculate the area correctly
     area_m2 = gdf.unary_union.area
     area_km2 = area_m2/1000000
 
@@ -59,7 +59,7 @@ for name, city in cities.items():
         G = ox.load_graphml('{}_{}.graphml'.format(name,layer), folder=path)
         print('  Starting with {}'.format(layer))
         if len(G.nodes)>0:
-            G = ox.project_graph(G, to_crs={'init':'epsg:4326'})
+            G = ox.project_graph(G, to_crs={'init':'epsg:32633'}) #Same as with the area, project the graph to meters
             print('  + Getting the stats')
             stats = ox.basic_stats(G, area=area_m2)
             row = {}
