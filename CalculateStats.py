@@ -35,6 +35,21 @@ cities = {'Phoenix':'Phoenix, Arizona, USA',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 
+cities = {'Phoenix':{'init':'epsg:2763'},
+          'Detroit':{'init':'epsg:2763'},
+          'Manhattan':{'init':'epsg:2763'},
+          'Amsterdam':{'init':'epsg:32633'},
+          'Mexico':{'init':'epsg:6372'},
+          'London':{'init':'epsg:32633'},
+          'Singapore':{'init':'epsg:3414'},
+          'Budapest':{'init':'epsg:32633'},
+          'Copenhagen':{'init':'epsg:32633'},
+          'Barcelona':{'init':'epsg:32633'},
+          'Portland':{'init':'epsg:26949'},
+          'Bogota':{'init':'epsg:6247'},
+          'LA':{'init':'epsg:2763'},
+          'Jakarta':{'init':'epsg:5331'}}
+
 
 #Dictionary to store the data to be sent to a dataframe
 cities_dict = {}
@@ -42,14 +57,14 @@ start = time.time()
 networks = ['walk', 'bike', 'rail', 'drive']
 
 #Iterate over cities.
-for name, city in cities.items():
+for name, crs in cities.items():
     start_0 = time.time()
     print('------\nStarting with {}:'.format(name))
     data_temp = {} #Temporal dict to store the layers of each city
     path = '../Data/{}'.format(name)
     gdf = gpd.read_file('../Data/{}/{}_shape/'.format(name, name))
     print('Area loaded')
-    gdf = ox.project_gdf(gdf, to_crs={'init':'epsg:32633'}) #projection to meters to calculate the area correctly
+    gdf = ox.project_gdf(gdf, to_crs=crs) #projection to meters to calculate the area correctly
     area_m2 = gdf.unary_union.area
     area_km2 = area_m2/1000000
 
@@ -59,7 +74,7 @@ for name, city in cities.items():
         G = ox.load_graphml('{}_{}.graphml'.format(name,layer), folder=path)
         print('  Starting with {}'.format(layer))
         if len(G.nodes)>0:
-            G = ox.project_graph(G, to_crs={'init':'epsg:32633'}) #Same as with the area, project the graph to meters
+            G = ox.project_graph(G, to_crs=crs) #Same as with the area, project the graph to meters
             print('  + Getting the stats')
             stats = ox.basic_stats(G, area=area_m2)
             row = {}
