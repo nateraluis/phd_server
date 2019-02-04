@@ -46,7 +46,7 @@ cities = {'Phoenix':{'init':'epsg:2763'},
           'Copenhagen':{'init':'epsg:32633'},
           'Barcelona':{'init':'epsg:32633'},
           'Portland':{'init':'epsg:26949'},
-          'Bogota':{'init':'epsg:6247'},
+          'Bogota':{'init':'epsg:3116'},
           'LA':{'init':'epsg:2763'},
           'Jakarta':{'init':'epsg:5331'}}
 
