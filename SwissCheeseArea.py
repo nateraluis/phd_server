@@ -40,9 +40,24 @@ def load_graphs(name):
 
     returns: Networkx MultiDiGraph
     '''
-    crs_osm = {'init':'epsg:4326'}           #crs that osm uses
+
+    crs = {'Phoenix':{'init':'epsg:2763'},
+              'Detroit':{'init':'epsg:2763'},
+              'Manhattan':{'init':'epsg:2763'},
+              'Amsterdam':{'init':'epsg:32633'},
+              'Mexico':{'init':'epsg:6372'},
+              'London':{'init':'epsg:32633'},
+              'Singapore':{'init':'epsg:3414'},
+              'Budapest':{'init':'epsg:32633'},
+              'Copenhagen':{'init':'epsg:32633'},
+              'Barcelona':{'init':'epsg:32633'},
+              'Portland':{'init':'epsg:26949'},
+              'Bogota':{'init':'epsg:3116'},
+              'LA':{'init':'epsg:2763'},
+              'Jakarta':{'init':'epsg:5331'}}
+              
     G_bike = ox.load_graphml('{}/{}_bike.graphml'.format(name,name))
-    G_bike = ox.project_graph(G_bike,to_crs=crs_osm)
+    G_bike = ox.project_graph(G_bike,to_crs=crs[name])
     G_drive = ox.load_graphml('{}/{}_drive.graphml'.format(name,name))
     G_drive = ox.project_graph(G_drive,to_crs=crs_osm)
     return G_bike, G_drive
