@@ -40,6 +40,7 @@ def load_graphs(name):
 
     returns: Networkx MultiDiGraph
     '''
+    crs_osm = {'init':'epsg:4326'}           #crs that osm uses
     G_bike = ox.load_graphml('{}/{}_bike.graphml'.format(name,name))
     G_bike = ox.project_graph(G_bike,to_crs=crs_osm)
     G_drive = ox.load_graphml('{}/{}_drive.graphml'.format(name,name))
@@ -96,7 +97,7 @@ def get_coverage(G, buffer):
     return cover.area/10**6
 
 def main(name):
-    algorithms = ['min_delta', 'greedy_LCC', 'random', 'greedy_min'] 
+    algorithms = ['min_delta', 'greedy_LCC', 'random', 'greedy_min']
     for algorithm in algorithms:
         start = time.time()
         print('Starting with {}'.format(name))
