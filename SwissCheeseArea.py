@@ -55,7 +55,7 @@ def load_df(name, algorithm):
     returns: Dataframe
     '''
 
-     if algorithm == 'greedy_LCC':
+    if algorithm == 'greedy_LCC':
         df = pd.read_csv('../Data/WCC/{}_CC_data.csv'.format(name), lineterminator='n', index_col=0)
     elif algorithm == 'random':
         df = pd.read_csv('../Data/WCC/{}_CC_Random_data.csv'.format(name), lineterminator='n', index_col=0)
