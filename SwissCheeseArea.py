@@ -129,7 +129,7 @@ def main(name):
                 G_bike.add_edge(row['i'], row['j'])
                 b_temp = get_coverage(G_bike,200)
                 coverage.append(b_temp/area_total)
-                print(' {}: {}/{}'.format(name,i,len(df)))
+                print('{} {}: {}/{} Elapsed time: {} seg.'.format(name,algorithm,i+1,len(df),round(time.time()-start,3)))
             else:
                 b_temp = get_coverage(G_bike,200)
                 coverage.append(b_temp/area_total)
