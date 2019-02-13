@@ -25,7 +25,7 @@ def load_data(name):
     area = gpd.read_file('../Data/{}/{}_shape'.format(name, name))
     area = ox.project_gdf(area, to_crs={'datum': 'WGS84', 'ellps': 'WGS84', 'proj': 'utm', 'zone': 34, 'units': 'm'})
 
-    path = '{}/{}_gtfs.zip'.format(name, name.lower)
+    path = '{}/budapest_gtfs.zip'.format(name)
 
     # Automatically identify the busiest day and read that in as a Partidge feed
     feed = pt.get_representative_feed(path)
