@@ -59,7 +59,7 @@ def load_graphs(name):
     G_bike = ox.load_graphml('{}/{}_bike.graphml'.format(name,name))
     G_bike = ox.project_graph(G_bike,to_crs=crs[name])
     G_drive = ox.load_graphml('{}/{}_drive.graphml'.format(name,name))
-    G_drive = ox.project_graph(G_drive,to_crs=crs_osm)
+    G_drive = ox.project_graph(G_drive,to_crs=crs[name])
     return G_bike, G_drive
 
 def load_df(name, algorithm):
