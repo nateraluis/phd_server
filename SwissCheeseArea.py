@@ -55,7 +55,7 @@ def load_graphs(name):
               'Bogota':{'init':'epsg:3116'},
               'LA':{'init':'epsg:2763'},
               'Jakarta':{'init':'epsg:5331'}}
-              
+
     G_bike = ox.load_graphml('{}/{}_bike.graphml'.format(name,name))
     G_bike = ox.project_graph(G_bike,to_crs=crs[name])
     G_drive = ox.load_graphml('{}/{}_drive.graphml'.format(name,name))
@@ -127,10 +127,12 @@ def main(name):
         for i, row in df.iterrows():
             if row['i']>0 and row['j']>0:
                 G_bike.add_edge(row['i'], row['j'])
-                coverage.append(get_coverage(G_bike,200)/area_total)
+                b_temp = get_coverage(G_bike,200)
+                coverage.append(b_temp/area_total)
                 print(' {}: {}/{}'.format(name,i,len(df)))
             else:
-                coverage.append(get_coverage(G_bike,200)/area_total)
+                b_temp = get_coverage(G_bike,200)
+                coverage.append(b_temp/area_total)
                 print('{} {}: {}/{} Elapsed time: {} seg.'.format(name,algorithm,i+1,len(df),round(time.time()-start,3)))
         df['coverage'] = coverage
         df.to_csv(data_path+'{}_{}.csv'.format(name,algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None, compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
