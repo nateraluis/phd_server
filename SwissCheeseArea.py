@@ -89,7 +89,7 @@ def get_coverage(G, buffer):
     returns:
     area: float. Area in square km
     '''
-    nodes, edges = ox.graph_to_gdfs(G_bike)
+    nodes, edges = ox.graph_to_gdfs(G)
     circles = nodes.buffer(buffer)
     squares = edges.buffer(buffer)
     buffers = squares.append(circles)
@@ -110,7 +110,7 @@ def main(name):
         area_total = area(G_drive)
         coverage = []
         for i, row in df.iterrows():
-            if i>0:
+            if row['i']>0 and row['j']>0:
                 G_bike.add_edge(row['i'], row['j'])
                 coverage.append(get_coverage(G_bike,200)/area_total)
                 n+=1
