@@ -105,7 +105,7 @@ def main(name):
         df = load_df(name, algorithm)
         data_path = '../Data/WCC/new/'
         assure_path_exists(data_path)
-        print(' + Data loaded in {}\n + Starting the calculations:'.format(round(time.time()-start,3)))
+        print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,algorithm,round(time.time()-start,3)))
         area_total = area(G_drive)
         coverage = []
         for i,row in df.iterrows():
@@ -117,7 +117,7 @@ def main(name):
             except:
                 coverage.append(get_coverage(G_bike,200)/area_total)
                 n+=1
-                print(' {}: {}/{} Elapsed time: {} seg.'.format(name,i+1,len(df),round(time.time()-start,3)))
+                print('{} {}: {}/{} Elapsed time: {} seg.'.format(name,algorithm,i+1,len(df),round(time.time()-start,3)))
         df['coverage'] = coverage
         df.to_csv(data_path+'{}_{}.csv'.format(name,algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None, compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
         print('{} {} done in {} min.\n------------\n------------\n\n'.format(name, algorithm,round((time.time()-start)/60,3)))
