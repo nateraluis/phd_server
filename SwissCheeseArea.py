@@ -101,38 +101,36 @@ def main(name):
     for algorithm in algorithms:
         start = time.time()
         print('Starting with {}'.format(name))
-        try:
-            df = load_df(name, algorithm)
-            G_bike, G_drive = load_graphs(name)
-            data_path = '../Data/WCC/new/'
-            assure_path_exists(data_path)
-            print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,algorithm,round(time.time()-start,3)))
-            area_total = area(G_drive)
-            coverage = []
-            for i,row in df.iterrows():
-                try:
-                    G_bike.add_edge(row['i'], row['j'])
-                    coverage.append(get_coverage(G_bike,200)/area_total)
-                    n+=1
-                    print(' {}: {}/{}'.format(name,n,len(df)))
-                except:
-                    coverage.append(get_coverage(G_bike,200)/area_total)
-                    n+=1
-                    print('{} {}: {}/{} Elapsed time: {} seg.'.format(name,algorithm,i+1,len(df),round(time.time()-start,3)))
-            df['coverage'] = coverage
-            df.to_csv(data_path+'{}_{}.csv'.format(name,algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None, compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
-            print('{} {} done in {} min.\n------------\n------------\n\n'.format(name, algorithm,round((time.time()-start)/60,3)))
-        except:
-            print('{} {} not found'.format(name, algorithm))
+
+        df = load_df(name, algorithm)
+        G_bike, G_drive = load_graphs(name)
+        data_path = '../Data/WCC/new/'
+        assure_path_exists(data_path)
+        print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,algorithm,round(time.time()-start,3)))
+        area_total = area(G_drive)
+        coverage = []
+        for i, row in df.iterrows():
+            if i>0:
+                G_bike.add_edge(row['i'], row['j'])
+                coverage.append(get_coverage(G_bike,200)/area_total)
+                n+=1
+                print(' {}: {}/{}'.format(name,n,len(df)))
+            else:
+                coverage.append(get_coverage(G_bike,200)/area_total)
+                n+=1
+                print('{} {}: {}/{} Elapsed time: {} seg.'.format(name,algorithm,i+1,len(df),round(time.time()-start,3)))
+        df['coverage'] = coverage
+        df.to_csv(data_path+'{}_{}.csv'.format(name,algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None, compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
+        print('{} {} done in {} min.\n------------\n------------\n\n'.format(name, algorithm,round((time.time()-start)/60,3)))
 
 if __name__ == '__main__':
     Global_start = time.time()
+    #'London':'London, England',
     cities = {'Phoenix':'Phoenix, Arizona, USA',
               'Detroit':'Detroit, Michigan, USA',
               'Manhattan':'Manhattan, New York City, New York, USA',
               'Amsterdam':'Amsterdam, Netherlands',
               'Mexico':'DF, Mexico',
-              'London':'London, England',
               'Singapore':'Singapore, Singapore',
               'Budapest':'Budapest, Hungary',
               'Copenhagen':'Copenhagen Municipality, Denmark',
