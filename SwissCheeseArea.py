@@ -96,6 +96,7 @@ def get_coverage(G, buffer):
     return cover.area/10**6
 
 def main(name):
+    algorithms = ['min_delta', 'greedy_LCC', 'random', 'greedy_min'] 
     for algorithm in algorithms:
         start = time.time()
         print('Starting with {}'.format(name))
