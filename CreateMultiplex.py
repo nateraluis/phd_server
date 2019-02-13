@@ -36,46 +36,46 @@ def load_data(name):
 
     # Converts feed subset into a directed network multigraph
     G = pt.load_feed_as_graph(feed, start, end,walk_speed_kmph=3, impute_walk_transfers=False, interpolate_times=False)
-    
+
     return G_s, area, G
 
 def filter_network(G, gdf):
     '''
     Filter the GTFS network to retain only the nodes and edges that are inside the area of analysis
-    
+
     Parameters
     ------
     G: networkx Graph
        Use the public transport graph generated from a GTF with peartree
     gdf: GeoPandas Dataframe
          The GDF that contains the area to use as the filter
-         
+
     Returns
     ------
     G: networkx Graph
        Filtered graph without the nodes and edges thay were outside of the working permiter
     '''
-    
+
     # Project the area and the network to the same coordinate system
     G = pt.reproject(G, to_epsg=4326)
     gdf = ox.project_gdf(gdf, to_crs=crs_osm)
-    
+
     #get the polygon
     polygons = [row.geometry for i, row in gdf.iterrows()]
     polygon = cascaded_union(polygons)
 
-    
-    
+
+
     #get the nodes to a dataframe
     nodes_df = pd.DataFrame.from_dict(dict(G.nodes(data=True)), orient='index')
 
     # Zip the coordinates into a point object and convert to a GeoDataFrame
     nodes_df = gpd.GeoDataFrame(nodes_df, geometry=[Point(xy) for xy in zip(nodes_df.x, nodes_df.y)])
     nodes_df = gpd.GeoDataFrame(nodes_df, geometry='geometry')
-    
-    #Get the nodes that are inside the area 
+
+    #Get the nodes that are inside the area
     nodes_df['inside'] = nodes_df.within(polygon)
-    
+
     #Remove the nodes that are outside of the polygon
     G.remove_nodes_from(list(nodes_df[~nodes_df.inside].index))
     return G
@@ -83,21 +83,21 @@ def filter_network(G, gdf):
 def pt_network(G, G_s):
     '''
     Create a public transportation network matching the bus stops to the clossest intersection to be used in the analysis of multilayer urban networks.
-    
+
     Parameters
     ------
     G: networkx MultiDiGraph
        Public transport graph generated from a GTF with peartree
-    
+
     G_s: networkx MultiDiGraph
          Streets network, generated using OSMnx
-    
+
     Returns
     ------
     G_pt: networkx MultiDigraph
           Graph where the nodes are the clossest street intersections to bus stops and the edges the public transportation routes
     '''
-    
+
     G_pt = copy.deepcopy(G_s)
     G = pt.reproject(G,to_epsg=4326)
     G_s = pt.reproject(G_s,to_epsg=4326)
@@ -110,7 +110,7 @@ def pt_network(G, G_s):
         nodes.append(n)
         x_s.append(data['x'])
         y_s.append(data['y'])
-    
+
     #Get the closest intersections as a numpy array of ID's
     match_nodes = ox.get_nearest_nodes(G_s, x_s, y_s, method='kdtree')
 
@@ -144,7 +144,7 @@ def simplify_graph(G):
             G_simple.add_edge(i,j,weight=w)
     return G_simple
 
-name = ['Budapest']
+name = 'Budapest'
 
 start_time = time.time()
 print('Starting with {}'.format(name))
