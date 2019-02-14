@@ -129,8 +129,8 @@ def pt_network(G, G_s):
     #Add the bus routes (edges)
     edges = [(pairs[i], pairs[j], d) for i,j,d in G.edges(data=True) if pairs[i] != pairs[j]]
     G_pt.add_edges_from(edges)
-    for e, data in G_pt.edges(data=True):
-        data['oneway']=False
+    for data in G_pt.edges(data=True):
+        data[1]['oneway']=False
     return G_pt
 
 def simplify_graph(G):
@@ -162,7 +162,7 @@ print('Data filter in {} s.'.format(round(time.time()-time_temp,2)))
 time_temp = time.time()
 G_pt = pt_network(G, G_s)
 print('G_pt network created in {} s'.format(round(time.time()-time_temp,2)))
-ox.save_graphml(G_pt, filename='{}/{}_pt.graphml'.format(name, name))
+ox.save_graphml(G_pt, filename='{}_pt.graphml'.format(name, name))
 print('G_pt saved')
 print('{} done. Total time: {} min.'.format(name, round((time.time()-start_time)/60,2)))
 print();
