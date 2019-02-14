@@ -129,8 +129,8 @@ def pt_network(G, G_s):
     #Add the bus routes (edges)
     edges = [(pairs[i], pairs[j], d) for i,j,d in G.edges(data=True) if pairs[i] != pairs[j]]
     G_pt.add_edges_from(edges)
-    for data in G_pt.edges(data=True):
-        data[1]['oneway']=False
+    for i, j, data in G_pt.edges(data=True):
+        data['oneway']=False
     return G_pt
 
 def simplify_graph(G):
