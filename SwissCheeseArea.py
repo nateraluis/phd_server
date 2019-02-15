@@ -2,7 +2,7 @@
 Script to analyze the coverage of the bicycle layer in each itteration of the algorithms.
 '''
 
-#Imports
+# Imports
 import osmnx as ox
 import time
 import os
@@ -12,7 +12,7 @@ import geopandas as gpd
 import datetime
 from multiprocessing import Pool
 
-#Confg osmnx
+# Confg osmnx
 ox.config(data_folder='../Data', logs_folder='../logs',
           imgs_folder='../imgs', cache_folder='../cache',
           use_cache=True, log_console=False, log_name='osmnx',
@@ -20,7 +20,7 @@ ox.config(data_folder='../Data', logs_folder='../logs',
 now = datetime.datetime.now()
 
 
-#Working functions
+# Working functions
 def assure_path_exists(path):
     '''
     Check if the path to one folder exists and if not create it.
@@ -30,6 +30,7 @@ def assure_path_exists(path):
     dir = os.path.dirname(path)
     if not os.path.exists(dir):
         os.makedirs(dir)
+
 
 def load_graphs(name):
     '''
@@ -41,26 +42,27 @@ def load_graphs(name):
     returns: Networkx MultiDiGraph
     '''
 
-    crs = {'Phoenix':{'init':'epsg:2763'},
-              'Detroit':{'init':'epsg:2763'},
-              'Manhattan':{'init':'epsg:2763'},
-              'Amsterdam':{'init':'epsg:32633'},
-              'Mexico':{'init':'epsg:6372'},
-              'London':{'init':'epsg:32633'},
-              'Singapore':{'init':'epsg:3414'},
-              'Budapest':{'init':'epsg:32633'},
-              'Copenhagen':{'init':'epsg:32633'},
-              'Barcelona':{'init':'epsg:32633'},
-              'Portland':{'init':'epsg:26949'},
-              'Bogota':{'init':'epsg:3116'},
-              'LA':{'init':'epsg:2763'},
-              'Jakarta':{'init':'epsg:5331'}}
+    crs = {'Phoenix': {'init': 'epsg:2763'},
+           'Detroit': {'init': 'epsg:2763'},
+           'Manhattan': {'init': 'epsg:2763'},
+           'Amsterdam': {'init': 'epsg:32633'},
+           'Mexico': {'init': 'epsg:6372'},
+           'London': {'init': 'epsg:32633'},
+           'Singapore': {'init': 'epsg:3414'},
+           'Budapest': {'init': 'epsg:32633'},
+           'Copenhagen': {'init': 'epsg:32633'},
+           'Barcelona': {'init': 'epsg:32633'},
+           'Portland': {'init': 'epsg:26949'},
+           'Bogota': {'init': 'epsg:3116'},
+           'LA': {'init': 'epsg:2763'},
+           'Jakarta': {'init': 'epsg:5331'}}
 
-    G_bike = ox.load_graphml('{}/{}_bike.graphml'.format(name,name))
-    G_bike = ox.project_graph(G_bike,to_crs=crs[name])
-    G_drive = ox.load_graphml('{}/{}_drive.graphml'.format(name,name))
-    G_drive = ox.project_graph(G_drive,to_crs=crs[name])
+    G_bike = ox.load_graphml('{}/{}_bike.graphml'.format(name, name))
+    G_bike = ox.project_graph(G_bike, to_crs=crs[name])
+    G_drive = ox.load_graphml('{}/{}_drive.graphml'.format(name, name))
+    G_drive = ox.project_graph(G_drive, to_crs=crs[name])
     return G_bike, G_drive
+
 
 def load_df(name, algorithm):
     '''
@@ -74,14 +76,18 @@ def load_df(name, algorithm):
     if algorithm == 'greedy_LCC':
         df = pd.read_csv('../Data/WCC/{}_CC_data.csv'.format(name), lineterminator='n', index_col=0)
     elif algorithm == 'random':
-        df = pd.read_csv('../Data/WCC/{}_CC_Random_data.csv'.format(name), lineterminator='n', index_col=0)
+        df = pd.read_csv('../Data/WCC/{}_CC_Random_data.csv'.format(name),
+                         lineterminator='n', index_col=0)
     elif algorithm == 'min_delta':
-        df = pd.read_csv('../Data/WCC/{}_CC_SmallestDelta_data.csv'.format(name), lineterminator='n', index_col=0)
+        df = pd.read_csv('../Data/WCC/{}_CC_SmallestDelta_data.csv'.format(name),
+                         lineterminator='n', index_col=0)
     elif algorithm == 'greedy_min':
-        df = pd.read_csv('../Data/WCC/{}_CC_data_Greedy_Closest.csv'.format(name), lineterminator='n', index_col=0)
+        df = pd.read_csv('../Data/WCC/{}_CC_data_Greedy_Closest.csv'.format(name),
+                         lineterminator='n', index_col=0)
     df['i'] = df.i.round(0).astype(int)
     df['j'] = df.j.round(0).astype(int)
     return df
+
 
 def area(G):
     '''
@@ -94,6 +100,7 @@ def area(G):
     '''
     nodes_proj = ox.graph_to_gdfs(G, edges=False)
     return nodes_proj.unary_union.convex_hull.area/10**6
+
 
 def get_coverage(G, buffer):
     '''
@@ -111,6 +118,7 @@ def get_coverage(G, buffer):
     cover = buffers.unary_union
     return cover.area/10**6
 
+
 def main(name):
     algorithms = ['min_delta', 'greedy_LCC', 'random', 'greedy_min']
     for algorithm in algorithms:
@@ -121,39 +129,45 @@ def main(name):
         G_bike, G_drive = load_graphs(name)
         data_path = '../Data/WCC/new/'
         assure_path_exists(data_path)
-        print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,algorithm,round(time.time()-start,3)))
+        print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
+                                                                              algorithm, round(time.time()-start, 3)))
         area_total = area(G_drive)
         coverage = []
         for i, row in df.iterrows():
-            if row['i']>0 and row['j']>0:
+            if row['i'] > 0 and row['j'] > 0:
                 G_bike.add_edge(row['i'], row['j'])
-                b_temp = get_coverage(G_bike,200)
+                b_temp = get_coverage(G_bike, 200)
                 coverage.append(b_temp/area_total)
-                print('{} {}: {}/{} Elapsed time: {} seg.'.format(name,algorithm,i+1,len(df),round(time.time()-start,3)))
+                print('{} {}: {}/{} Elapsed time: {} seg.'.format(name,
+                                                                  algorithm, i+1, len(df), round(time.time()-start, 3)))
             else:
-                b_temp = get_coverage(G_bike,200)
+                b_temp = get_coverage(G_bike, 200)
                 coverage.append(b_temp/area_total)
-                print('{} {}: {}/{} Elapsed time: {} seg.'.format(name,algorithm,i+1,len(df),round(time.time()-start,3)))
+                print('{} {}: {}/{} Elapsed time: {} seg.'.format(name,
+                                                                  algorithm, i+1, len(df), round(time.time()-start, 3)))
         df['coverage'] = coverage
-        df.to_csv(data_path+'{}_{}.csv'.format(name,algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None, compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
-        print('{} {} done in {} min.\n------------\n------------\n\n'.format(name, algorithm,round((time.time()-start)/60,3)))
+        df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
+                  compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
+        print('{} {} done in {} min.\n------------\n------------\n\n'.format(name,
+                                                                             algorithm, round((time.time()-start)/60, 3)))
+
 
 if __name__ == '__main__':
     Global_start = time.time()
-    #'London':'London, England',
-    cities = {'Phoenix':'Phoenix, Arizona, USA',
-              'Detroit':'Detroit, Michigan, USA',
-              'Manhattan':'Manhattan, New York City, New York, USA',
-              'Amsterdam':'Amsterdam, Netherlands',
-              'Mexico':'DF, Mexico',
-              'Singapore':'Singapore, Singapore',
-              'Budapest':'Budapest, Hungary',
-              'Copenhagen':'Copenhagen Municipality, Denmark',
-              'Barcelona':'Barcelona, Catalunya, Spain',
-              'Portland':'Portland, Oregon, USA',
-              'Bogota':'Bogotá, Colombia',
-              'LA':'Los Angeles, Los Angeles County, California, USA',
-              'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
+    # 'London':'London, England',
+    cities = {'Phoenix': 'Phoenix, Arizona, USA',
+              'Detroit': 'Detroit, Michigan, USA',
+              'Manhattan': 'Manhattan, New York City, New York, USA',
+              'Amsterdam': 'Amsterdam, Netherlands',
+              'Mexico': 'DF, Mexico',
+              'Singapore': 'Singapore, Singapore',
+              'Budapest': 'Budapest, Hungary',
+              'Copenhagen': 'Copenhagen Municipality, Denmark',
+              'Barcelona': 'Barcelona, Catalunya, Spain',
+              'Portland': 'Portland, Oregon, USA',
+              'Bogota': 'Bogotá, Colombia',
+              'LA': 'Los Angeles, Los Angeles County, California, USA',
+              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'}
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
     pool = Pool(processes=10)
     pool.map(main, cities)

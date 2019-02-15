@@ -15,15 +15,17 @@ ox.config(data_folder='../Data', logs_folder='../logs',
           imgs_folder='../imgs', cache_folder='../cache',
           use_cache=True, log_console=False, log_name='osmnx',
           log_file=True, log_filename='osmnx')
-crs_osm = {'init':'epsg:4326'}           #crs that osm uses
+crs_osm = {'init': 'epsg:4326'}  # crs that osm uses
+
 
 def load_data(name):
-    #Load the streets
+    # Load the streets
     G_s = ox.load_graphml('{}/{}_drive.graphml'.format(name, name))
 
-    #Load the area
+    # Load the area
     area = gpd.read_file('../Data/{}/{}_shape'.format(name, name))
-    area = ox.project_gdf(area, to_crs={'datum': 'WGS84', 'ellps': 'WGS84', 'proj': 'utm', 'zone': 34, 'units': 'm'})
+    area = ox.project_gdf(area, to_crs={'datum': 'WGS84',
+                                        'ellps': 'WGS84', 'proj': 'utm', 'zone': 34, 'units': 'm'})
 
     path = '../Data/{}/budapest_gtfs.zip'.format(name)
 
@@ -35,9 +37,11 @@ def load_data(name):
     end = 23*60*60  # 10:00 AM
 
     # Converts feed subset into a directed network multigraph
-    G = pt.load_feed_as_graph(feed, start, end,walk_speed_kmph=3, impute_walk_transfers=False, interpolate_times=False)
+    G = pt.load_feed_as_graph(feed, start, end, walk_speed_kmph=3,
+                              impute_walk_transfers=False, interpolate_times=False)
 
     return G_s, area, G
+
 
 def filter_network(G, gdf):
     '''
@@ -60,25 +64,25 @@ def filter_network(G, gdf):
     G = pt.reproject(G, to_epsg=4326)
     gdf = ox.project_gdf(gdf, to_crs=crs_osm)
 
-    #get the polygon
+    # get the polygon
     polygons = [row.geometry for i, row in gdf.iterrows()]
     polygon = cascaded_union(polygons)
 
-
-
-    #get the nodes to a dataframe
+    # get the nodes to a dataframe
     nodes_df = pd.DataFrame.from_dict(dict(G.nodes(data=True)), orient='index')
 
     # Zip the coordinates into a point object and convert to a GeoDataFrame
-    nodes_df = gpd.GeoDataFrame(nodes_df, geometry=[Point(xy) for xy in zip(nodes_df.x, nodes_df.y)])
+    nodes_df = gpd.GeoDataFrame(nodes_df, geometry=[Point(xy)
+                                                    for xy in zip(nodes_df.x, nodes_df.y)])
     nodes_df = gpd.GeoDataFrame(nodes_df, geometry='geometry')
 
-    #Get the nodes that are inside the area
+    # Get the nodes that are inside the area
     nodes_df['inside'] = nodes_df.within(polygon)
 
-    #Remove the nodes that are outside of the polygon
+    # Remove the nodes that are outside of the polygon
     G.remove_nodes_from(list(nodes_df[~nodes_df.inside].index))
     return G
+
 
 def pt_network(G, G_s):
     '''
@@ -99,10 +103,10 @@ def pt_network(G, G_s):
     '''
 
     G_pt = copy.deepcopy(G_s)
-    G = pt.reproject(G,to_epsg=4326)
-    G_s = pt.reproject(G_s,to_epsg=4326)
+    G = pt.reproject(G, to_epsg=4326)
+    G_s = pt.reproject(G_s, to_epsg=4326)
 
-    #1.- Get a list of nodes, x's and y's
+    # 1.- Get a list of nodes, x's and y's
     nodes = []
     x_s = []
     y_s = []
@@ -111,58 +115,60 @@ def pt_network(G, G_s):
         x_s.append(data['x'])
         y_s.append(data['y'])
 
-    #Get the closest intersections as a numpy array of ID's
+    # Get the closest intersections as a numpy array of ID's
     match_nodes = ox.get_nearest_nodes(G_s, x_s, y_s, method='kdtree')
 
-    #Pair the bus stop with its closest intersection
+    # Pair the bus stop with its closest intersection
     pairs = {}
     for i, i_s in zip(nodes, match_nodes):
         pairs[i] = i_s
 
-    #Remove all the edges from the public transport graph
+    # Remove all the edges from the public transport graph
     G_pt.remove_edges_from(list(G_pt.edges()))
 
-    #Remove the unmatched intersections
+    # Remove the unmatched intersections
     remove = [i for i in G_pt.nodes() if i not in match_nodes]
     G_pt.remove_nodes_from(remove)
 
-    #Add the bus routes (edges)
-    edges = [(pairs[i], pairs[j], d) for i,j,d in G.edges(data=True) if pairs[i] != pairs[j]]
+    # Add the bus routes (edges)
+    edges = [(pairs[i], pairs[j], d) for i, j, d in G.edges(data=True) if pairs[i] != pairs[j]]
     G_pt.add_edges_from(edges)
     for i, j, data in G_pt.edges(data=True):
-        data['oneway']=False
+        data['oneway'] = False
     return G_pt
+
 
 def simplify_graph(G):
     G_simple = nx.Graph()
 
-    for i,j,data in G.edges(data=True):
+    for i, j, data in G.edges(data=True):
         w = data['weight'] if 'weight' in data else 1.0
-        if G_simple.has_edge(i,j):
+        if G_simple.has_edge(i, j):
             G_simple[i][j]['weight'] += w
         else:
-            G_simple.add_edge(i,j,weight=w)
+            G_simple.add_edge(i, j, weight=w)
     return G_simple
+
 
 name = 'Budapest'
 
 start_time = time.time()
 print('Starting with {}'.format(name))
-        #Load the data
+# Load the data
 G_s, area, G = load_data(name)
 
-print('Data loaded in {} min.'.format(round((time.time()-start_time)/60,2)))
+print('Data loaded in {} min.'.format(round((time.time()-start_time)/60, 2)))
 
-#Filter the GTF network
+# Filter the GTF network
 time_temp = time.time()
 G = filter_network(G, area)
-print('Data filter in {} s.'.format(round(time.time()-time_temp,2)))
+print('Data filter in {} s.'.format(round(time.time()-time_temp, 2)))
 
-#Create the network
+# Create the network
 time_temp = time.time()
 G_pt = pt_network(G, G_s)
-print('G_pt network created in {} s'.format(round(time.time()-time_temp,2)))
+print('G_pt network created in {} s'.format(round(time.time()-time_temp, 2)))
 ox.save_graphml(G_pt, filename='{}_pt.graphml'.format(name, name))
 print('G_pt saved')
-print('{} done. Total time: {} min.'.format(name, round((time.time()-start_time)/60,2)))
-print();
+print('{} done. Total time: {} min.'.format(name, round((time.time()-start_time)/60, 2)))
+print()
