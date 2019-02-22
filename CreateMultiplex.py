@@ -7,8 +7,6 @@ import copy
 from shapely.geometry import Point, LineString
 from shapely.ops import cascaded_union
 
-pt.utilities.config(log_console=True)
-
 
 ox.config(data_folder='../Data', logs_folder='../logs',
           imgs_folder='../imgs', cache_folder='../cache',
