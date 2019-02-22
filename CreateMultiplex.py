@@ -20,7 +20,7 @@ crs_osm = {'init': 'epsg:4326'}  # crs that osm uses
 
 def load_data(name):
     # Load the streets
-    G_s = ox.load_graphml('{}/{}_drive.graphml'.format(name, name))
+    G_s = ox.load_graphml('{}/{}_walk.graphml'.format(name, name))
 
     # Load the area
     area = gpd.read_file('../Data/{}/{}_shape'.format(name, name))
@@ -30,15 +30,7 @@ def load_data(name):
     path = '../Data/{}/budapest_gtfs.zip'.format(name)
 
     # Automatically identify the busiest day and read that in as a Partidge feed
-    feed = pt.get_representative_feed(path)
-
-    # Set a target time period to use to summarize impedance
-    start = 7*60*60  # 7:00 AM
-    end = 23*60*60  # 10:00 AM
-
-    # Converts feed subset into a directed network multigraph
-    G = pt.load_feed_as_graph(feed, start, end, walk_speed_kmph=3,
-                              impute_walk_transfers=False, interpolate_times=False)
+    G = ox.load_graphml('{}/{}_bike.graphml'.format(name, name))
 
     return G_s, area, G
 
@@ -168,7 +160,7 @@ print('Data filter in {} s.'.format(round(time.time()-time_temp, 2)))
 time_temp = time.time()
 G_pt = pt_network(G, G_s)
 print('G_pt network created in {} s'.format(round(time.time()-time_temp, 2)))
-ox.save_graphml(G_pt, filename='{}_pt.graphml'.format(name, name))
+ox.save_graphml(G_pt, filename='{}_bike_new.graphml'.format(name, name))
 print('G_pt saved')
 print('{} done. Total time: {} min.'.format(name, round((time.time()-start_time)/60, 2)))
 print()
