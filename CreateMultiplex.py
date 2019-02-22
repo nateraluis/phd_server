@@ -2,7 +2,6 @@ import osmnx as ox
 import pandas as pd
 import geopandas as gpd
 import networkx as nx
-import peartree as pt
 import time
 import copy
 from shapely.geometry import Point, LineString
