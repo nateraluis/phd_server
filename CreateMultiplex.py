@@ -2,10 +2,13 @@ import osmnx as ox
 import pandas as pd
 import geopandas as gpd
 import networkx as nx
+import peartree as pt
 import time
 import copy
 from shapely.geometry import Point, LineString
 from shapely.ops import cascaded_union
+
+pt.utilities.config(log_console=True)
 
 
 ox.config(data_folder='../Data', logs_folder='../logs',
