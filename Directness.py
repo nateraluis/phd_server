@@ -171,22 +171,19 @@ def main(name):
         start = time.time()
         print('Starting with {}'.format(name))
         # Load the dataframe
-        try:
-            df = load_df(name, algorithm)
-            # Load the graph
-            G_bike, G_drive = load_graphs(name)
-            data_path = '../Data/WCC/new/'
-            assure_path_exists(data_path)
-            print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
-                                                                                  algorithm, round(time.time()-start, 3)))
-            new_df = calculate_directness(df, G_bike, G_drive)
-            new_df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
-                          compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
-            print('{} {} done in {} min.\n------------\n------------\n\n'.format(name,
-                                                                                 algorithm, round((time.time()-start)/60, 3)))
-        except:
-            print('Problems with {} {}'.format(name, algorithm))
-            pass
+
+        df = load_df(name, algorithm)
+        # Load the graph
+        G_bike, G_drive = load_graphs(name)
+        data_path = '../Data/WCC/new/'
+        assure_path_exists(data_path)
+        print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
+                                                                              algorithm, round(time.time()-start, 3)))
+        new_df = calculate_directness(df, G_bike, G_drive)
+        new_df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
+                      compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
+        print('{} {} done in {} min.\n------------\n------------\n\n'.format(name,
+                                                                             algorithm, round((time.time()-start)/60, 3)))
 
 
 if __name__ == '__main__':
