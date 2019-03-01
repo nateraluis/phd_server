@@ -213,6 +213,6 @@ if __name__ == '__main__':
               'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'}
     # 'London': 'London, England'
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
-    pool = Pool(processes=5)
+    pool = Pool(processes=10)
     pool.map(main, cities)
     print('All cities done in {} min'.format((time.time()-Global_start)/60))
