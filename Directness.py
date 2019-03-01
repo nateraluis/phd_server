@@ -142,14 +142,18 @@ def get_lcc(G):
         Subgraph of G with the largest connected component.
 
     """
-    wcc = list(nx.connected_component_subgraphs(G_bike)).sort(key=len, reverse=True)
+    wcc = list(nx.connected_component_subgraphs(G)).sort(key=len, reverse=True)
     return wcc[0]
 
 
-def calculate_directness(df, G_bike, G_drive):
+def calculate_directness(df, G_bike, G_drive, name):
     df['d_ij_b'] = 0
     df['d_ij_s'] = 0
+    print('Calculating {}'.format(name))
+    start = time.time()
     for ind, row in df.iterrows():
+        temp_start = time.time()
+        print('{}: {}/{}'.format(name, ind, len(df)))
         avg_bike = []
         avg_street = []
         if ind > 0:
@@ -162,6 +166,8 @@ def calculate_directness(df, G_bike, G_drive):
             avg_street.append(nx.shortest_path_length(G_drive, u_v[0], u_v[1], weight='length'))
         row['d_ij_b'] = np.average(avg_bike)
         row['d_ij_s'] = np.average(avg_street)
+        print('{} calculation {}/{} done in {} s.'.format(name, ind, len(df), time.time()-temp_start))
+    print('{} done in {} min'.format(name, round((time.time()-start)/60, 3)))
     return df
 
 
