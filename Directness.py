@@ -1,8 +1,4 @@
-import matplotlib.colors as mpcol
-import matplotlib.colors as colors
 import datetime
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import geopandas as gpd
 import networkx as nx
 import pandas as pd
@@ -10,8 +6,7 @@ import numpy as np
 import os
 import time
 import osmnx as ox
-import matplotlib
-matplotlib.use('Agg')
+from multiprocessing import Pool
 '''
 Script to calculate the directness as the average percent difference in shortest path distances of bikes using bike lanes versus using streets.
 '''
