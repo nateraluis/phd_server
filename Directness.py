@@ -142,7 +142,8 @@ def get_lcc(G):
         Subgraph of G with the largest connected component.
 
     """
-    wcc = list(nx.connected_component_subgraphs(G)).sort(key=len, reverse=True)
+    wcc = list(nx.connected_component_subgraphs(G))
+    wcc.sort(key=len, reverse=True)
     return wcc[0]
 
 
