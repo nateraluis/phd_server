@@ -6,6 +6,7 @@ import numpy as np
 import os
 import time
 import osmnx as ox
+import random
 from multiprocessing import Pool
 '''
 Script to calculate the directness as the average percent difference in shortest path distances of bikes using bike lanes versus using streets.
