@@ -185,7 +185,7 @@ def main(name):
         assure_path_exists(data_path)
         print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
                                                                               algorithm, round(time.time()-start, 3)))
-        new_df = calculate_directness(df, G_bike, G_drive)
+        new_df = calculate_directness(df, G_bike, G_drive, name)
         new_df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
                       compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
         print('{} {} done in {} min.\n------------\n------------\n\n'.format(name,
@@ -207,8 +207,8 @@ if __name__ == '__main__':
               'Portland': 'Portland, Oregon, USA',
               'Bogota': 'Bogotá, Colombia',
               'LA': 'Los Angeles, Los Angeles County, California, USA',
-              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia',
-              'London': 'London, England'}
+              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'}
+    # 'London': 'London, England'
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
     pool = Pool(processes=10)
     pool.map(main, cities)
