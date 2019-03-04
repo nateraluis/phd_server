@@ -121,7 +121,7 @@ def get_data(G_bike, name):
             j_s2.append(closest_ij2['j'])
             # Add the new link closest_ij['dist']
             G_bike.add_edge(closest_ij['i'], closest_ij['j'], length=0)
-            G_bike.add_edge(closest_i2j['i'], closest_ij2['j'], length=0)
+            G_bike.add_edge(closest_ij2['i'], closest_ij2['j'], length=0)
             p_delta = delta[-1]  # Get the previous aggregated delta
             delta.append(p_delta+closest_ij['dist'])  # Record the new sum of deltas
             p_delta = delta2[-1]  # Get the previous aggregated delta
