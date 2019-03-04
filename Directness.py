@@ -162,7 +162,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm):
             G_bike.add_edge(row['i'], row['j'], length=euclidean_dist_vec(G_bike.nodes[row['i']]['y'],
                                                                           G_bike.nodes[row['i']]['x'], G_bike.nodes[row['j']]['y'], G_bike.nodes[row['j']]['x']))
         cc = get_lcc(G_bike)
-        seeds_bike, seeds_car = get_seeds(cc, G_drive, 100)
+        seeds_bike, seeds_car = get_seeds(cc, G_drive, 1000)
         for i_j, u_v in zip(seeds_bike, seeds_car):
             avg_bike.append(nx.shortest_path_length(cc, i_j[0], i_j[1], weight='length'))
             avg_street.append(nx.shortest_path_length(G_drive, u_v[0], u_v[1], weight='length'))
