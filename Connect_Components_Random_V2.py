@@ -65,9 +65,9 @@ def closest_pair(wcc):
                     j_coord = (j[1]['y'], j[1]['x'])
                     dist = euclidean_dist_vec(i_coord[0], i_coord[1], j_coord[0], j_coord[1])
                     if dist < closest_pair['dist']:
-                        closest_pair_2['i'] = closest_pair['i']
-                        closest_pair_2['j'] = closest_pair['j']
-                        closest_pair_2['dist'] = closest_pair['dist']
+                        closest_pair2['i'] = closest_pair['i']
+                        closest_pair2['j'] = closest_pair['j']
+                        closest_pair2['dist'] = closest_pair['dist']
                         closest_pair['i'] = i[0]
                         closest_pair['j'] = j[0]
                         closest_pair['dist'] = dist
@@ -158,23 +158,23 @@ def main(name):
 
 if __name__ == '__main__':
     Global_start = time.time()
-    """
-    'Phoenix': 'Phoenix, Arizona, USA',
-    'Detroit': 'Detroit, Michigan, USA',
-    'Manhattan': 'Manhattan, New York City, New York, USA',
-    'Amsterdam': 'Amsterdam, Netherlands',
-    'Mexico': 'DF, Mexico',
-    'London': 'London, England',
-    'Singapore': 'Singapore, Singapore',
-    'Copenhagen': 'Copenhagen Municipality, Denmark',
-    'Barcelona': 'Barcelona, Catalunya, Spain',
-    'Portland': 'Portland, Oregon, USA',
-    'Bogota': 'Bogotá, Colombia',
-    'LA': 'Los Angeles, Los Angeles County, California, USA',
-    'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
-    """
-    cities = {'Budapest': 'Budapest, Hungary'}
-    print('Starting the script, go and grab a coffe, it is going to be a long one :)')
-    pool = Pool(processes=10)
-    pool.map(main, cities)
-    print('All cities done in {} min'.format((time.time()-Global_start)/60))
+"""
+'Phoenix': 'Phoenix, Arizona, USA',
+'Detroit': 'Detroit, Michigan, USA',
+'Manhattan': 'Manhattan, New York City, New York, USA',
+'Amsterdam': 'Amsterdam, Netherlands',
+'Mexico': 'DF, Mexico',
+'London': 'London, England',
+'Singapore': 'Singapore, Singapore',
+'Copenhagen': 'Copenhagen Municipality, Denmark',
+'Barcelona': 'Barcelona, Catalunya, Spain',
+'Portland': 'Portland, Oregon, USA',
+'Bogota': 'Bogotá, Colombia',
+'LA': 'Los Angeles, Los Angeles County, California, USA',
+'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
+"""
+cities = {'Budapest': 'Budapest, Hungary'}
+print('Starting the script, go and grab a coffe, it is going to be a long one :)')
+pool = Pool(processes=10)
+pool.map(main, cities)
+print('All cities done in {} min'.format((time.time()-Global_start)/60))

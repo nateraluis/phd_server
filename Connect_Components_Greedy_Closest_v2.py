@@ -82,9 +82,9 @@ def closest_pair(wcc):
                 j_coord = (j[1]['y'], j[1]['x'])
                 dist = euclidean_dist_vec(i_coord[0], i_coord[1], j_coord[0], j_coord[1])
                 if dist < closest_pair['dist']:
-                    closest_pair_2['i'] = closest_pair['i']
-                    closest_pair_2['j'] = closest_pair['j']
-                    closest_pair_2['dist'] = closest_pair['dist']
+                    closest_pair2['i'] = closest_pair['i']
+                    closest_pair2['j'] = closest_pair['j']
+                    closest_pair2['dist'] = closest_pair['dist']
                     closest_pair['i'] = i[0]
                     closest_pair['j'] = j[0]
                     closest_pair['dist'] = dist
