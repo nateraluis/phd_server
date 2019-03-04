@@ -210,20 +210,22 @@ def main(name):
 
 if __name__ == '__main__':
     Global_start = time.time()
-    cities = {'Phoenix': 'Phoenix, Arizona, USA',
-              'Detroit': 'Detroit, Michigan, USA',
-              'Manhattan': 'Manhattan, New York City, New York, USA',
-              'Amsterdam': 'Amsterdam, Netherlands',
-              'Mexico': 'DF, Mexico',
-              'London': 'London, England',
-              'Singapore': 'Singapore, Singapore',
-              'Budapest': 'Budapest, Hungary',
-              'Copenhagen': 'Copenhagen Municipality, Denmark',
-              'Barcelona': 'Barcelona, Catalunya, Spain',
-              'Portland': 'Portland, Oregon, USA',
-              'Bogota': 'Bogotá, Colombia',
-              'LA': 'Los Angeles, Los Angeles County, California, USA',
-              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'}
+    """
+    'Phoenix': 'Phoenix, Arizona, USA',
+    'Detroit': 'Detroit, Michigan, USA',
+    'Manhattan': 'Manhattan, New York City, New York, USA',
+    'Amsterdam': 'Amsterdam, Netherlands',
+    'Mexico': 'DF, Mexico',
+    'London': 'London, England',
+    'Singapore': 'Singapore, Singapore',
+    'Copenhagen': 'Copenhagen Municipality, Denmark',
+    'Barcelona': 'Barcelona, Catalunya, Spain',
+    'Portland': 'Portland, Oregon, USA',
+    'Bogota': 'Bogotá, Colombia',
+    'LA': 'Los Angeles, Los Angeles County, California, USA',
+    'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
+    """
+    cities = {'Budapest': 'Budapest, Hungary'}
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
     pool = Pool(processes=10)
     pool.map(main, cities)
