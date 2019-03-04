@@ -1,6 +1,8 @@
 from multiprocessing import Pool
+from itertools import combinations
 import matplotlib.colors as mpcol
 import matplotlib.colors as colors
+import random
 import datetime
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -13,7 +15,7 @@ import time
 import osmnx as ox
 '''
 Script to connect and analyze the different connected components on the bicycle layer of the cities.
-This is a greedy algorithm that connects the two LCC's in each iteration.
+This iteration of the algorithm randomly takes on of the connected commponents, looks for the distance to all other commponents and create a link with the closest one.
 '''
 
 # Imports
@@ -28,34 +30,21 @@ ox.config(data_folder='../Data', logs_folder='../logs',
 now = datetime.datetime.now()
 
 
-# Working functions
+# Auxiliar functions
 def assure_path_exists(path):
-    '''
-    Check if the path to one folder exists and if not create it.
-    ---
-    path: str containing the path to check
-    '''
     dir = os.path.dirname(path)
     if not os.path.exists(dir):
         os.makedirs(dir)
 
 
 def load_graph(name, layer):
-    '''
-    Load the graph into the script.
-    ---
-    name: str name of the city to be loaded
-    layer: str layer to be loaded, it can be: drive, bike, walk, rail.
-
-    returns: Networkx MultiDiGraph
-    '''
     return ox.load_graphml('{}/{}_{}.graphml'.format(name, name, layer))
 
 
 def euclidean_dist_vec(y1, x1, y2, x2):
-    '''
-    Calculate the euclidean distance between two points.
-    '''
+    """
+    Calculate the euclidean distance between two nodes
+    """
     distance = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
     return distance
 
@@ -90,7 +79,6 @@ def get_data(G_bike, name):
     # 0.- Create lists to store data
     nodes_cc = []
     length_cc = []
-    directness = []
     delta = []
     i_s = []
     j_s = []
@@ -111,72 +99,66 @@ def get_data(G_bike, name):
     # Save the current status
     length_cc.append(l_temp)  # Bike km
     delta.append(0)  # Delta_x 0
-    delta2.append(0)
-    # nodes_cc.append(len(wcc[0])) #Number of nodes inside the LCC
-    nodes_cc.append(0)  # Number of nodes inside the LCC
     i_s.append(0)
     j_s.append(0)
+    # nodes_cc.append(len(wcc[0])) #Number of nodes inside the LCC
+    nodes_cc.append(0)  # Number of nodes inside the LCC
+    delta2.append(0)  # Delta_x 0
     i_s2.append(0)
     j_s2.append(0)
-    to_iterate = len(wcc)-1  # We'll iterate over n-1 connected components
+
+    to_iterate = len(wcc)-1
     ncc = 0
-    print('  + Starting the loop:')
-    for cc in range(to_iterate):
-        wcc = [cc for cc in nx.weakly_connected_component_subgraphs(
-            G_bike)]  # Get a list of the WCC
-        wcc.sort(key=len, reverse=True)  # Sort the list from the largest to smallest
-        # Get the two clossest pairs of nodes between the two LCC's
-        closest_ij, closest_ij2 = closest_pair(wcc)
-        i_s.append(closest_ij['i'])  # Store the sequence of links connected
-        j_s.append(closest_ij['j'])
-        i_s2.append(closest_ij2['i'])
-        j_s2.append(closest_ij2['j'])
-        p_delta = delta[-1]  # Get the latest delta
-        delta.append(p_delta+closest_ij['dist'])  # Add the new delta measure to the list of deltas
-        p_delta = delta2[-1]  # Get the latest delta
-        # Add the new delta measure to the list of deltas
-        delta2.append(p_delta+closest_ij2['dist'])
-        # Record the new number of nodes inside the LCC after merging the two LCC's
-        nodes_cc.append(len(wcc[0])+len(wcc[1]))
-        l_temp = 0
-        for e in wcc[0].edges(data=True):
-            try:
-                l_temp += e[2]['length']
-            except:
-                pass
-        for e in wcc[1].edges(data=True):
-            try:
-                l_temp += e[2]['length']
-            except:
-                pass
-        length_cc.append(l_temp/1000)
-        if closest_ij['i'] != closest_ij['j']:
-            G_bike.add_edge(closest_ij['i'], closest_ij['j'], length=0)  # closest_ij['dist'
-        if closest_ij2['i'] != closest_ij2['j']:
+    for it in range(to_iterate):
+        if it == 0:
+            wcc = [cc for cc in nx.weakly_connected_component_subgraphs(G_bike)]  # Get the WCC's
+        closest_ij, closest_ij2 = closest_pair(wcc)  # Find the closest pair of nodes
+        if closest_ij['i'] != closest_ij['j']:  # Sanity check, the nodes have to be different
+            i_s.append(closest_ij['i'])  # Store the sequence of links connected
+            j_s.append(closest_ij['j'])
+        if closest_ij2['i'] != closest_ij2['j']:  # Sanity check, the nodes have to be different
+            i_s2.append(closest_ij['i'])  # Store the sequence of links connected
+            j_s2.append(closest_ij['j'])
+            # Add the new link closest_ij['dist']
+            G_bike.add_edge(closest_ij['i'], closest_ij['j'], length=0)
             G_bike.add_edge(closest_ij2['i'], closest_ij2['j'], length=0)
+            p_delta = delta[-1]  # Get the previous aggregated delta
+            delta.append(p_delta+closest_ij['dist'])  # Record the new sum of deltas
+            p_delta = delta[-1]  # Get the previous aggregated delta
+            delta2.append(p_delta+closest_ij2['dist'])  # Record the new sum of deltas
+            wcc = [cc for cc in nx.weakly_connected_component_subgraphs(
+                G_bike)]  # Get the new WCC's
+            wcc.sort(key=len, reverse=True)  # Sort them to get the largest one
+            nodes_cc.append(len(wcc[0]))  # Record the number of nodes from the largest one
+            l_temp = 0  # Temporal store of the length
+            for e in wcc[0].edges(data=True):
+                l_temp += e[2]['length']  # Get the total length of the LCC
+            length_cc.append(l_temp/1000)
         ncc += 1
-        print('{} {}/{} done, elapsed time {} min, avg {} seg, to go: {} min.'.format(name, ncc, to_iterate, round((time.time() -
-                                                                                                                    start)/60, 2), round((time.time()-start)/ncc, 2), round((((time.time()-start)/ncc)*(to_iterate-ncc))/60, 2)))
+        print('{} {}/{} done, elapsed time {} min, avg {} seg, to go: {} min.'.format(name, ncc, to_iterate,
+                                                                                      round((time.time()-start)/60, 2), round((time.time()-start)/ncc, 2), round((((time.time()-start)/ncc)*to_iterate-ncc)/60, 2)))
         if delta[-1] > 200000:
             break
-    return delta, nodes_cc, length_cc, i_s, j_s, delta2, i_s2, j_s2
+    return delta, nodes_cc, length_cc, i_s, j_s, i_s2, j_s2, delta2
 
 
 def main(name):
+    #Global_start = time.time()
+    path_plot = '../imgs/Percolation/'
+    assure_path_exists(path_plot)
+    print('Path ready')
     # for name in cities:
     print('Starting with {}'.format(name))
     G_bike = load_graph(name, 'bike')
     data_path = '../Data/WCC/V2/'
     assure_path_exists(data_path)
     print(' + Data loaded\n + Starting the calculations:')
-    delta, nodes_cc, length_cc, i_s, j_s, delta2, i_s2, j_s2 = get_data(G_bike, name)
+    delta, nodes_cc, length_cc, i_s, j_s, i_s2, j_s2, delta2 = get_data(G_bike, name)
     df = pd.DataFrame(np.column_stack([delta, nodes_cc, length_cc, i_s, j_s, delta2, i_s2, j_s2]), columns=[
                       'delta', 'nodes_cc', 'length_cc', 'i', 'j', 'delta2', 'i2', 'j2'])
-    df.to_csv(data_path+'{}_CC_data.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
+    df.to_csv(data_path+'{}_CC_SmallestDelta_data.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
               compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
     print('{} done\n------------\n------------\n\n'.format(name))
-    # End of loop
-    #print('All cities done in {} min'.format((time.time()-Global_start)/60))
 
 
 if __name__ == '__main__':
@@ -196,7 +178,7 @@ if __name__ == '__main__':
     'LA': 'Los Angeles, Los Angeles County, California, USA',
     'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
     """
-    cities = {'Budapest': 'Budapest, Hungary'
+    cities = {'Budapest': 'Budapest, Hungary',
               }
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
     pool = Pool(processes=10)
