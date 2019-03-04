@@ -149,8 +149,8 @@ def get_lcc(G):
 
 
 def calculate_directness(df, G_bike, G_drive, name, algorithm):
-    df['d_ij_b'] = 0
-    df['d_ij_s'] = 0
+    d_ij_b = []
+    d_ij_s = []
     print('Calculating {}'.format(name))
     start = time.time()
     for ind, row in df.iterrows():
@@ -162,14 +162,16 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm):
             G_bike.add_edge(row['i'], row['j'], length=euclidean_dist_vec(G_bike.nodes[row['i']]['y'],
                                                                           G_bike.nodes[row['i']]['x'], G_bike.nodes[row['j']]['y'], G_bike.nodes[row['j']]['x']))
         cc = get_lcc(G_bike)
-        seeds_bike, seeds_car = get_seeds(cc, G_drive, 500)
+        seeds_bike, seeds_car = get_seeds(cc, G_drive, 100)
         for i_j, u_v in zip(seeds_bike, seeds_car):
             avg_bike.append(nx.shortest_path_length(cc, i_j[0], i_j[1], weight='length'))
             avg_street.append(nx.shortest_path_length(G_drive, u_v[0], u_v[1], weight='length'))
-        row['d_ij_b'] = np.average(avg_bike)
-        row['d_ij_s'] = np.average(avg_street)
+        d_ij_b.append(np.average(avg_bike))
+        d_ij_s.append(np.average(avg_street))
         print('{} {} calculation {}/{} done in {} s To go: {} min.'.format(name, algorithm, ind,
                                                                            len(df), time.time()-temp_start, round(((len(df)-ind)*(time.time()-temp_start))/60, 3)))
+    df['d_ij_b'] = d_ij_b
+    df['d_ij_s'] = d_ij_s
     print('{} done in {} min'.format(name, round((time.time()-start)/60, 3)))
     return df
 
@@ -198,13 +200,13 @@ def main(name):
 if __name__ == '__main__':
     Global_start = time.time()
     # 'London':'London, England',
-    cities = {'Phoenix': 'Phoenix, Arizona, USA',
+    cities = {'Budapest': 'Budapest, Hungary',
+              'Phoenix': 'Phoenix, Arizona, USA',
               'Detroit': 'Detroit, Michigan, USA',
               'Manhattan': 'Manhattan, New York City, New York, USA',
               'Amsterdam': 'Amsterdam, Netherlands',
               'Mexico': 'DF, Mexico',
               'Singapore': 'Singapore, Singapore',
-              'Budapest': 'Budapest, Hungary',
               'Copenhagen': 'Copenhagen Municipality, Denmark',
               'Barcelona': 'Barcelona, Catalunya, Spain',
               'Portland': 'Portland, Oregon, USA',
