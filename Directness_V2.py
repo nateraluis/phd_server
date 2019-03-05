@@ -167,7 +167,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm):
             G_bike.add_edge(row['i2'], row['j2'], length=euclidean_dist_vec(G_bike.nodes[row['i2']]['y'],
                                                                             G_bike.nodes[row['i2']]['x'], G_bike.nodes[row['j2']]['y'], G_bike.nodes[row['j2']]['x']))
         cc = get_lcc(G_bike)
-        seeds_bike, seeds_car = get_seeds(cc, G_drive, 1000)
+        seeds_bike, seeds_car = get_seeds(cc, G_drive, 100)
         for i_j, u_v in zip(seeds_bike, seeds_car):
             avg_bike.append(nx.shortest_path_length(cc, i_j[0], i_j[1], weight='length'))
             avg_street.append(nx.shortest_path_length(G_drive, u_v[0], u_v[1], weight='length'))
@@ -182,7 +182,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm):
 
 
 def main(name):
-    algorithms = ['min_delta', 'greedy_LCC', 'random']  # 'greedy_min'
+    algorithms = ['greedy_LCC', 'random', 'min_delta']  # 'greedy_min'
     for algorithm in algorithms:
         start = time.time()
         print('Starting with {}'.format(name))
