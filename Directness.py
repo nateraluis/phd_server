@@ -177,7 +177,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm):
 
 
 def main(name):
-    algorithms = ['min_delta', 'greedy_LCC', 'random', 'greedy_min']
+    algorithms = ['greedy_LCC']  # , 'random', 'min_delta', 'greedy_min'
     for algorithm in algorithms:
         start = time.time()
         print('Starting with {}'.format(name))
@@ -191,7 +191,7 @@ def main(name):
         print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
                                                                               algorithm, round(time.time()-start, 3)))
         new_df = calculate_directness(df, G_bike, G_drive, name, algorithm)
-        new_df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
+        new_df.to_csv(data_path+'{}_{}_one_link.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
                       compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
         print('{} {} done in {} min.\n------------\n------------\n\n'.format(name,
                                                                              algorithm, round((time.time()-start)/60, 3)))
@@ -200,19 +200,20 @@ def main(name):
 if __name__ == '__main__':
     Global_start = time.time()
     # 'London':'London, England',
+    # 'Phoenix': 'Phoenix, Arizona, USA',
+    # 'Detroit': 'Detroit, Michigan, USA',
+    # 'Manhattan': 'Manhattan, New York City, New York, USA',
+    # 'Amsterdam': 'Amsterdam, Netherlands',
+    # 'Mexico': 'DF, Mexico',
+    # 'Singapore': 'Singapore, Singapore',
+    # 'Copenhagen': 'Copenhagen Municipality, Denmark',
+    # 'Barcelona': 'Barcelona, Catalunya, Spain',
+    # 'Portland': 'Portland, Oregon, USA',
+    # 'Bogota': 'Bogotá, Colombia',
+    # 'LA': 'Los Angeles, Los Angeles County, California, USA',
+    # 'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
     cities = {'Budapest': 'Budapest, Hungary',
-              'Phoenix': 'Phoenix, Arizona, USA',
-              'Detroit': 'Detroit, Michigan, USA',
-              'Manhattan': 'Manhattan, New York City, New York, USA',
-              'Amsterdam': 'Amsterdam, Netherlands',
-              'Mexico': 'DF, Mexico',
-              'Singapore': 'Singapore, Singapore',
-              'Copenhagen': 'Copenhagen Municipality, Denmark',
-              'Barcelona': 'Barcelona, Catalunya, Spain',
-              'Portland': 'Portland, Oregon, USA',
-              'Bogota': 'Bogotá, Colombia',
-              'LA': 'Los Angeles, Los Angeles County, California, USA',
-              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'}
+              }
     # 'London': 'London, England'
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
     pool = Pool(processes=10)
