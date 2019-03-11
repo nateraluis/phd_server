@@ -160,7 +160,7 @@ start_time = time.time()
 print('Starting with {}'.format(name))
 # Load the data
 G_s, area, G = load_data(name)
-ox.save_graphml(G_pt, filename='{}_PT_new.graphml'.format(name, name))
+ox.save_graphml(G, filename='{}_PT_new.graphml'.format(name, name))
 print('Data loaded in {} min.'.format(round((time.time()-start_time)/60, 2)))
 """
 # Filter the GTF network
