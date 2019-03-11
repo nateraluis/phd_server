@@ -30,7 +30,19 @@ def load_data(name):
     path = '../Data/{}/budapest_gtfs.zip'.format(name)
 
     # Automatically identify the busiest day and read that in as a Partidge feed
-    G = ox.load_graphml('{}/{}_bike.graphml'.format(name, name))
+    #G = ox.load_graphml('{}/{}_bike.graphml'.format(name, name))
+    # Automatically identify the busiest day and
+    # read that in as a Partidge feed
+    feed = pt.get_representative_feed(path)
+
+    # Set a target time period to
+    # use to summarize impedance
+    start = 7*60*60  # 7:00 AM
+    end = 10*60*60  # 10:00 AM
+
+    # Converts feed subset into a directed
+    # network multigraph
+    G = pt.load_feed_as_graph(feed, start, end)
 
     return G_s, area, G
 
@@ -148,9 +160,9 @@ start_time = time.time()
 print('Starting with {}'.format(name))
 # Load the data
 G_s, area, G = load_data(name)
-
+ox.save_graphml(G_pt, filename='{}_PT_new.graphml'.format(name, name))
 print('Data loaded in {} min.'.format(round((time.time()-start_time)/60, 2)))
-
+"""
 # Filter the GTF network
 time_temp = time.time()
 G = filter_network(G, area)
@@ -164,3 +176,4 @@ ox.save_graphml(G_pt, filename='{}_bike_new.graphml'.format(name, name))
 print('G_pt saved')
 print('{} done. Total time: {} min.'.format(name, round((time.time()-start_time)/60, 2)))
 print()
+"""

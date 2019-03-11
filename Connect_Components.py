@@ -11,14 +11,13 @@ import numpy as np
 import os
 import time
 import osmnx as ox
+import matplotlib
+matplotlib.use('Agg')
 '''
 Script to connect and analyze the different connected components on the bicycle layer of the cities.
 This is a greedy algorithm that connects the two LCC's in each iteration.
 '''
 
-# Imports
-import matplotlib
-matplotlib.use('Agg')
 
 # Confg osmnx
 ox.config(data_folder='../Data', logs_folder='../logs',
