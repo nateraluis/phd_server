@@ -193,13 +193,13 @@ def main(name):
     for u_v in seeds_car:
         euclidean_distance = euclidean_dist_vec(G_drive_o.nodes[u_v[0]]['y'],
                                                 G_drive_o.nodes[u_v[0]]['x'], G_drive_o.nodes[u_v[1]]['y'], G_drive_o.nodes[u_v[0]]['x'])
-        avg_street.append(euclidean_distance/nx.shortest_path_length(G_drive,
+        avg_street.append(euclidean_distance/nx.shortest_path_length(G_drive_o,
                                                                      u_v[0], u_v[1], weight='length'))
     car_value = np.average(avg_street)  # Average efficiency in the car layer
     for algorithm in algorithms:
         start = time.time()
         G_bike = G_bike_o.copy()
-        G_drive = G_drive_o
+        G_drive = G_drive_o.copy()
         print('Starting with {}'.format(name))
         # Load the dataframe
 
