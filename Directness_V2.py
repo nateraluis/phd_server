@@ -190,7 +190,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, seeds
 def main(name):
     algorithms = ['greedy_min', 'greedy_LCC', 'random', 'min_delta']  #
     G_bike_o, G_drive_o = load_graphs(name)
-    seeds_bike, seeds_car = get_seeds(G_bike, G_drive, 200)
+    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 200)
     for algorithm in algorithms:
         start = time.time()
         G_bike = G_bike_o.copy()
