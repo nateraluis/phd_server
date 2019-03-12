@@ -168,8 +168,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
         cc = get_lcc(G_bike)
         for i_j in seeds_bike:
             if nx.has_path(G_bike, i_j[0], i_j[1]):
-                euclidean_distance = euclidean_dist_vec(G_bike.nodes[i_j[0]]['y'],
-                                                                              G_bike.nodes[i_j[0]]['x'], G_bike.nodes[i_j[1]]['y'], G_bike.nodes[i_j[0]]['x']))
+                euclidean_distance = euclidean_dist_vec(G_bike.nodes[i_j[0]]['y'], G_bike.nodes[i_j[0]]['x'], G_bike.nodes[i_j[1]]['y'], G_bike.nodes[i_j[0]]['x']))
                 avg_bike.append(euclidean_distance/nx.shortest_path_length(G_bike,
                                 i_j[0], i_j[1], weight='length'))
             else:
