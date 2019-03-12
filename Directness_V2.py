@@ -221,21 +221,21 @@ if __name__ == '__main__':
     Global_start = time.time()
     """
     'London':'London, England',
-    'Phoenix': 'Phoenix, Arizona, USA',
-    'Detroit': 'Detroit, Michigan, USA',
-    'Manhattan': 'Manhattan, New York City, New York, USA',
-    'Amsterdam': 'Amsterdam, Netherlands',
-    'Mexico': 'DF, Mexico',
-    'Singapore': 'Singapore, Singapore',
-    'Copenhagen': 'Copenhagen Municipality, Denmark',
-    'Barcelona': 'Barcelona, Catalunya, Spain',
-    'Portland': 'Portland, Oregon, USA',
-    'Bogota': 'Bogotá, Colombia',
-    'LA': 'Los Angeles, Los Angeles County, California, USA',
-    'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
-    """
-    cities = {'Budapest': 'Budapest, Hungary'
 
+    """
+    cities = {'Budapest': 'Budapest, Hungary',
+              'Phoenix': 'Phoenix, Arizona, USA',
+              'Detroit': 'Detroit, Michigan, USA',
+              'Manhattan': 'Manhattan, New York City, New York, USA',
+              'Amsterdam': 'Amsterdam, Netherlands',
+              'Mexico': 'DF, Mexico',
+              'Singapore': 'Singapore, Singapore',
+              'Copenhagen': 'Copenhagen Municipality, Denmark',
+              'Barcelona': 'Barcelona, Catalunya, Spain',
+              'Portland': 'Portland, Oregon, USA',
+              'Bogota': 'Bogotá, Colombia',
+              'LA': 'Los Angeles, Los Angeles County, California, USA',
+              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
               }
     # 'London': 'London, England'
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
