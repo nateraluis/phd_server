@@ -75,26 +75,23 @@ def load_df(name, algorithm):
     '''
 
     if algorithm == 'greedy_LCC':
-        df = pd.read_csv('../Data/WCC/V2/{}_CC_data.csv'.format(name),
-                         lineterminator='n', index_col=0)
+        df = pd.read_csv('../Data/WCC/{}_CC_data.csv'.format(name), lineterminator='n', index_col=0)
     elif algorithm == 'random':
-        df = pd.read_csv('../Data/WCC/V2/{}_CC_Random_data.csv'.format(name),
+        df = pd.read_csv('../Data/WCC/{}_CC_Random_data.csv'.format(name),
                          lineterminator='n', index_col=0)
     elif algorithm == 'min_delta':
-        df = pd.read_csv('../Data/WCC/V2/{}_CC_SmallestDelta_data.csv'.format(name),
+        df = pd.read_csv('../Data/WCC/{}_CC_SmallestDelta_data.csv'.format(name),
                          lineterminator='n', index_col=0)
     elif algorithm == 'greedy_min':
-        df = pd.read_csv('../Data/WCC/V2/{}_CC_data_Greedy_Closest.csv'.format(name),
+        df = pd.read_csv('../Data/WCC/{}_CC_data_Greedy_Closest.csv'.format(name),
                          lineterminator='n', index_col=0)
     df['i'] = df.i.round(0).astype(int)
     df['j'] = df.j.round(0).astype(int)
-    df['i2'] = df.i.round(0).astype(int)
-    df['j2'] = df.j.round(0).astype(int)
     return df
 
 
 def get_seeds(G_bike, G_drive, pairs):
-    """Short summary.
+    """Get x pairs of random pairs of nodes in the bike and street layer.
 
     Parameters
     ----------
@@ -152,27 +149,56 @@ def get_lcc(G):
 
 
 def calculate_directness(df, G_bike, G_drive, name, algorithm):
+    """Short summary.
+
+    Parameters
+    ----------
+    df : type
+        Description of parameter `df`.
+    G_bike : type
+        Description of parameter `G_bike`.
+    G_drive : type
+        Description of parameter `G_drive`.
+    name : type
+        Description of parameter `name`.
+    algorithm : type
+        Description of parameter `algorithm`.
+
+    Returns
+    -------
+    type
+        Description of returned object.
+
+    """
     d_ij_b = []
     d_ij_s = []
     print('Calculating {}'.format(name))
     start = time.time()
+    # Get the seeds
+    seeds_bike, seeds_car = get_seeds(G_bike, G_drive, 100)
+    avg_street = []
+    for u_v in seeds_car:
+        avg_street.append(nx.shortest_path_length(G_drive, u_v[0], u_v[1], weight='length'))
+    car_value = 1/np.average(avg_street)
+    print('Calculations done fore cars, d_ij^s = {}'.format(car_value))
+
     for ind, row in df.iterrows():
         temp_start = time.time()
         print('{} {}: {}/{}'.format(name, algorithm, ind, len(df)))
         avg_bike = []
-        avg_street = []
+
         if ind > 0:
             G_bike.add_edge(row['i'], row['j'], length=euclidean_dist_vec(G_bike.nodes[row['i']]['y'],
                                                                           G_bike.nodes[row['i']]['x'], G_bike.nodes[row['j']]['y'], G_bike.nodes[row['j']]['x']))
-            G_bike.add_edge(row['i2'], row['j2'], length=euclidean_dist_vec(G_bike.nodes[row['i2']]['y'],
-                                                                            G_bike.nodes[row['i2']]['x'], G_bike.nodes[row['j2']]['y'], G_bike.nodes[row['j2']]['x']))
         cc = get_lcc(G_bike)
-        seeds_bike, seeds_car = get_seeds(cc, G_drive, 100)
-        for i_j, u_v in zip(seeds_bike, seeds_car):
-            avg_bike.append(nx.shortest_path_length(cc, i_j[0], i_j[1], weight='length'))
-            avg_street.append(nx.shortest_path_length(G_drive, u_v[0], u_v[1], weight='length'))
-        d_ij_b.append(np.average(avg_bike))
-        d_ij_s.append(np.average(avg_street))
+        for i_j in seeds_bike:
+            if nx.has_path(cc, i_j[0], i_j[1]):
+                avg_bike.append(nx.shortest_path_length(cc, i_j[0], i_j[1], weight='length'))
+            else:
+                avg_bike.append(0)
+        bike_value = 1/np.average(avg_bike)
+        d_ij_b.append(bike_value)
+        d_ij_s.append(car_value)
         print('{} {} calculation {}/{} done in {} s To go: {} min.'.format(name, algorithm, ind,
                                                                            len(df), time.time()-temp_start, round(((len(df)-ind)*(time.time()-temp_start))/60, 3)))
     df['d_ij_b'] = d_ij_b
