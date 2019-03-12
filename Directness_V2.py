@@ -208,7 +208,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm):
 
 
 def main(name):
-    algorithms = ['greedy_LCC', 'random', 'min_delta']  # 'greedy_min'
+    algorithms = ['greedy_min', 'greedy_LCC', 'random', 'min_delta']  #
     for algorithm in algorithms:
         start = time.time()
         print('Starting with {}'.format(name))
