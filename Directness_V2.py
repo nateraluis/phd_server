@@ -175,7 +175,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm):
     print('Calculating {}'.format(name))
     start = time.time()
     # Get the seeds
-    seeds_bike, seeds_car = get_seeds(G_bike, G_drive, 100)
+    seeds_bike, seeds_car = get_seeds(G_bike, G_drive, 200)
     avg_street = []
     for u_v in seeds_car:
         avg_street.append(nx.shortest_path_length(G_drive, u_v[0], u_v[1], weight='length'))
@@ -232,20 +232,21 @@ if __name__ == '__main__':
     Global_start = time.time()
     """
     'London':'London, England',
+    'Phoenix': 'Phoenix, Arizona, USA',
+    'Detroit': 'Detroit, Michigan, USA',
+    'Manhattan': 'Manhattan, New York City, New York, USA',
+    'Amsterdam': 'Amsterdam, Netherlands',
+    'Mexico': 'DF, Mexico',
+    'Singapore': 'Singapore, Singapore',
+    'Copenhagen': 'Copenhagen Municipality, Denmark',
+    'Barcelona': 'Barcelona, Catalunya, Spain',
+    'Portland': 'Portland, Oregon, USA',
+    'Bogota': 'Bogotá, Colombia',
+    'LA': 'Los Angeles, Los Angeles County, California, USA',
+    'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
     """
-    cities = {'Budapest': 'Budapest, Hungary',
-              'Phoenix': 'Phoenix, Arizona, USA',
-              'Detroit': 'Detroit, Michigan, USA',
-              'Manhattan': 'Manhattan, New York City, New York, USA',
-              'Amsterdam': 'Amsterdam, Netherlands',
-              'Mexico': 'DF, Mexico',
-              'Singapore': 'Singapore, Singapore',
-              'Copenhagen': 'Copenhagen Municipality, Denmark',
-              'Barcelona': 'Barcelona, Catalunya, Spain',
-              'Portland': 'Portland, Oregon, USA',
-              'Bogota': 'Bogotá, Colombia',
-              'LA': 'Los Angeles, Los Angeles County, California, USA',
-              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
+    cities = {'Budapest': 'Budapest, Hungary'
+
               }
     # 'London': 'London, England'
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
