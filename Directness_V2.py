@@ -188,7 +188,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
 def main(name):
     algorithms = ['greedy_min', 'greedy_LCC', 'random', 'min_delta']  #
     G_bike_o, G_drive_o = load_graphs(name)
-    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 100)
+    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 1000)
     avg_street = []
     for u_v in seeds_car:
         euclidean_distance = euclidean_dist_vec(G_drive_o.nodes[u_v[0]]['y'],
