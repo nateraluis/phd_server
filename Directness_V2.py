@@ -148,7 +148,7 @@ def get_lcc(G):
     return wcc[0]
 
 
-def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, seeds_car):
+def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_value):
 
     d_ij_b = []
     d_ij_s = []
@@ -156,64 +156,69 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, seeds
     start = time.time()
     # Get the seeds
 
-    avg_street = []
-    for u_v in seeds_car:
-        avg_street.append(nx.shortest_path_length(G_drive, u_v[0], u_v[1], weight='length'))
-    car_value = 1/np.average(avg_street)
     print('Calculations done fore cars, d_ij^s = {}'.format(car_value))
 
     for ind, row in df.iterrows():
         temp_start = time.time()
         print('{} {}: {}/{}'.format(name, algorithm, ind, len(df)))
         avg_bike = []
-
         if ind > 0:
             G_bike.add_edge(row['i'], row['j'], length=euclidean_dist_vec(G_bike.nodes[row['i']]['y'],
                                                                           G_bike.nodes[row['i']]['x'], G_bike.nodes[row['j']]['y'], G_bike.nodes[row['j']]['x']))
         cc = get_lcc(G_bike)
         for i_j in seeds_bike:
             if nx.has_path(G_bike, i_j[0], i_j[1]):
-                avg_bike.append(nx.shortest_path_length(G_bike, i_j[0], i_j[1], weight='length'))
+                euclidean_distance = euclidean_dist_vec(G_bike.nodes[i_j[0]]['y'],
+                                                                              G_bike.nodes[i_j[0]]['x'], G_bike.nodes[i_j[1]]['y'], G_bike.nodes[i_j[0]]['x']))
+                avg_bike.append(euclidean_distance/nx.shortest_path_length(G_bike,
+                                i_j[0], i_j[1], weight='length'))
             else:
                 avg_bike.append(0)
-        bike_value = 1/np.average(avg_bike)
+        bike_value=np.average(avg_bike)
         d_ij_b.append(bike_value)
         d_ij_s.append(car_value)
         print('{} {} calculation {}/{} done in {} s To go: {} min.'.format(name, algorithm, ind,
                                                                            len(df), time.time()-temp_start, round(((len(df)-ind)*(time.time()-temp_start))/60, 3)))
-    df['d_ij_b'] = d_ij_b
-    df['d_ij_s'] = d_ij_s
+    df['d_ij_b']=d_ij_b
+    df['d_ij_s']=d_ij_s
     print('{} done in {} min'.format(name, round((time.time()-start)/60, 3)))
     return df
 
 
 def main(name):
-    algorithms = ['greedy_min', 'greedy_LCC', 'random', 'min_delta']  #
-    G_bike_o, G_drive_o = load_graphs(name)
-    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 200)
+    algorithms=['greedy_min', 'greedy_LCC', 'random', 'min_delta']  #
+    G_bike_o, G_drive_o=load_graphs(name)
+    seeds_bike, seeds_car=get_seeds(G_bike_o, G_drive_o, 100)
+    avg_street=[]
+    for u_v in seeds_car:
+        euclidean_distance=euclidean_dist_vec(G_drive_o.nodes[u_v[0]]['y'],
+                                                                      G_drive_o.nodes[u_v[0]]['x'], G_drive_o.nodes[u_v[1]]['y'], G_drive_o.nodes[u_v[0]]['x']))
+        avg_street.append(euclidean_distance/nx.shortest_path_length(G_drive,
+                          u_v[0], u_v[1], weight='length'))
+    car_value=np.average(avg_street)  # Average efficiency in the car layer
     for algorithm in algorithms:
-        start = time.time()
-        G_bike = G_bike_o.copy()
-        G_drive = G_drive_o
+        start=time.time()
+        G_bike=G_bike_o.copy()
+        G_drive=G_drive_o
         print('Starting with {}'.format(name))
         # Load the dataframe
 
-        df = load_df(name, algorithm)
+        df=load_df(name, algorithm)
         # Load the graph
 
-        data_path = '../Data/WCC/new/'
+        data_path='../Data/WCC/new/'
         assure_path_exists(data_path)
         print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
                                                                               algorithm, round(time.time()-start, 3)))
-        new_df = calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, seeds_car)
-        new_df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
-                      compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
+        new_df=calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_value)
+        new_df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep = ",", na_rep = '', float_format = None, columns = None, header = True, index = True, index_label = None, mode = 'w', encoding = None,
+                      compression = None, quoting = None, quotechar = '"', line_terminator = 'n', chunksize = None, tupleize_cols = None, date_format = None, doublequote = True, escapechar = None, decimal = '.')
         print('{} {} done in {} min.\n------------\n------------\n\n'.format(name,
                                                                              algorithm, round((time.time()-start)/60, 3)))
 
 
 if __name__ == '__main__':
-    Global_start = time.time()
+    Global_start=time.time()
     """
     'London':'London, England',
     'Phoenix': 'Phoenix, Arizona, USA',
@@ -229,7 +234,7 @@ if __name__ == '__main__':
     'LA': 'Los Angeles, Los Angeles County, California, USA',
     'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
     """
-    cities = {'Budapest': 'Budapest, Hungary'
+    cities={'Budapest': 'Budapest, Hungary'
 
               }
     # 'London': 'London, England'
