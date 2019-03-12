@@ -192,8 +192,8 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm):
                                                                           G_bike.nodes[row['i']]['x'], G_bike.nodes[row['j']]['y'], G_bike.nodes[row['j']]['x']))
         cc = get_lcc(G_bike)
         for i_j in seeds_bike:
-            if nx.has_path(cc, i_j[0], i_j[1]):
-                avg_bike.append(nx.shortest_path_length(cc, i_j[0], i_j[1], weight='length'))
+            if nx.has_path(G_bike, i_j[0], i_j[1]):
+                avg_bike.append(nx.shortest_path_length(G_bike, i_j[0], i_j[1], weight='length'))
             else:
                 avg_bike.append(0)
         bike_value = 1/np.average(avg_bike)
