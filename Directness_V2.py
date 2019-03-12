@@ -148,34 +148,14 @@ def get_lcc(G):
     return wcc[0]
 
 
-def calculate_directness(df, G_bike, G_drive, name, algorithm):
-    """Short summary.
+def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, seeds_car):
 
-    Parameters
-    ----------
-    df : type
-        Description of parameter `df`.
-    G_bike : type
-        Description of parameter `G_bike`.
-    G_drive : type
-        Description of parameter `G_drive`.
-    name : type
-        Description of parameter `name`.
-    algorithm : type
-        Description of parameter `algorithm`.
-
-    Returns
-    -------
-    type
-        Description of returned object.
-
-    """
     d_ij_b = []
     d_ij_s = []
     print('Calculating {}'.format(name))
     start = time.time()
     # Get the seeds
-    seeds_bike, seeds_car = get_seeds(G_bike, G_drive, 200)
+
     avg_street = []
     for u_v in seeds_car:
         avg_street.append(nx.shortest_path_length(G_drive, u_v[0], u_v[1], weight='length'))
@@ -209,19 +189,23 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm):
 
 def main(name):
     algorithms = ['greedy_min', 'greedy_LCC', 'random', 'min_delta']  #
+    G_bike_o, G_drive_o = load_graphs(name)
+    seeds_bike, seeds_car = get_seeds(G_bike, G_drive, 200)
     for algorithm in algorithms:
         start = time.time()
+        G_bike = G_bike_o.copy()
+        G_drive = G_drive_o
         print('Starting with {}'.format(name))
         # Load the dataframe
 
         df = load_df(name, algorithm)
         # Load the graph
-        G_bike, G_drive = load_graphs(name)
+
         data_path = '../Data/WCC/new/'
         assure_path_exists(data_path)
         print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
                                                                               algorithm, round(time.time()-start, 3)))
-        new_df = calculate_directness(df, G_bike, G_drive, name, algorithm)
+        new_df = calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, seeds_car)
         new_df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
                       compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
         print('{} {} done in {} min.\n------------\n------------\n\n'.format(name,
