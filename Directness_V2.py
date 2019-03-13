@@ -219,32 +219,36 @@ def main(name):
                                                                      u_v[0], u_v[1], weight='length'))
     car_value = np.average(avg_street)  # Average efficiency in the car layer
 
-    for algorithm in algorithms:
-        run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car, car_value)
+    # for algorithm in algorithms:
+    #    run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car, car_value)
+    pool = Pool(processes=10)
+    pool.map(run_calculations, algorithms, G_bike_o,
+             G_drive_o, name, seeds_bike, seeds_car, car_value)
 
 
 if __name__ == '__main__':
     Global_start = time.time()
     """
     'London':'London, England',
-
+'Mexico': 'DF, Mexico',
+'Singapore': 'Singapore, Singapore',
+'Copenhagen': 'Copenhagen Municipality, Denmark',
+'Barcelona': 'Barcelona, Catalunya, Spain',
+'Portland': 'Portland, Oregon, USA',
+'Bogota': 'Bogotá, Colombia',
+'LA': 'Los Angeles, Los Angeles County, California, USA',
+'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
+'Budapest': 'Budapest, Hungary',
+          'Phoenix': 'Phoenix, Arizona, USA',
+          'Detroit': 'Detroit, Michigan, USA',
+          'Manhattan': 'Manhattan, New York City, New York, USA',
     """
-    cities = {'Budapest': 'Budapest, Hungary',
-              'Phoenix': 'Phoenix, Arizona, USA',
-              'Detroit': 'Detroit, Michigan, USA',
-              'Manhattan': 'Manhattan, New York City, New York, USA',
-              'Amsterdam': 'Amsterdam, Netherlands',
-              'Mexico': 'DF, Mexico',
-              'Singapore': 'Singapore, Singapore',
-              'Copenhagen': 'Copenhagen Municipality, Denmark',
-              'Barcelona': 'Barcelona, Catalunya, Spain',
-              'Portland': 'Portland, Oregon, USA',
-              'Bogota': 'Bogotá, Colombia',
-              'LA': 'Los Angeles, Los Angeles County, California, USA',
-              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
-              }
+    cities = {
+        'Amsterdam': 'Amsterdam, Netherlands'
+
+    }
     # 'London': 'London, England'
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
-    pool = Pool(processes=10)
-    pool.map(main, cities)
+    for name in cities:
+        main(name)
     print('All cities done in {} min'.format((time.time()-Global_start)/60))
