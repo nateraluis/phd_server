@@ -208,7 +208,7 @@ def run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car
 
 def main(name):
     print('Starting with {}'.format(name))
-    algorithms = ['greedy_min', 'greedy_LCC', 'random', 'min_delta']  #
+    algorithms = ['min_delta', 'random']  # 'greedy_min', 'greedy_LCC',
     G_bike_o, G_drive_o = load_graphs(name)
     seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 1000)
     avg_street = []
@@ -219,11 +219,8 @@ def main(name):
                                                                      u_v[0], u_v[1], weight='length'))
     car_value = np.average(avg_street)  # Average efficiency in the car layer
 
-    # for algorithm in algorithms:
-    #    run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car, car_value)
-    pool = Pool(processes=10)
-    pool.map(run_calculations, algorithms, G_bike_o,
-             G_drive_o, name, seeds_bike, seeds_car, car_value)
+    for algorithm in algorithms:
+        run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car, car_value)
 
 
 if __name__ == '__main__':
@@ -249,6 +246,7 @@ if __name__ == '__main__':
     }
     # 'London': 'London, England'
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
-    for name in cities:
-        main(name)
+    pool = Pool(processes=10)
+    pool.map(main, cities)
+
     print('All cities done in {} min'.format((time.time()-Global_start)/60))
