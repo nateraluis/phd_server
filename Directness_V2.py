@@ -185,6 +185,27 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
     return df
 
 
+def run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car, car_value):
+    start = time.time()
+    G_bike = G_bike_o.copy()
+    G_drive = G_drive_o.copy()
+    print('Starting with {}'.format(name))
+    # Load the dataframe
+
+    df = load_df(name, algorithm)
+    # Load the graph
+
+    data_path = '../Data/WCC/new/'
+    assure_path_exists(data_path)
+    print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
+                                                                          algorithm, round(time.time()-start, 3)))
+    new_df = calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_value)
+    new_df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
+                  compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
+    print('{} {} done in {} min.\n------------\n------------\n\n'.format(name,
+                                                                         algorithm, round((time.time()-start)/60, 3)))
+
+
 def main(name):
     algorithms = ['greedy_min', 'greedy_LCC', 'random', 'min_delta']  #
     G_bike_o, G_drive_o = load_graphs(name)
@@ -196,38 +217,21 @@ def main(name):
         avg_street.append(euclidean_distance/nx.shortest_path_length(G_drive_o,
                                                                      u_v[0], u_v[1], weight='length'))
     car_value = np.average(avg_street)  # Average efficiency in the car layer
-    for algorithm in algorithms:
-        start = time.time()
-        G_bike = G_bike_o.copy()
-        G_drive = G_drive_o.copy()
-        print('Starting with {}'.format(name))
-        # Load the dataframe
 
-        df = load_df(name, algorithm)
-        # Load the graph
-
-        data_path = '../Data/WCC/new/'
-        assure_path_exists(data_path)
-        print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
-                                                                              algorithm, round(time.time()-start, 3)))
-        new_df = calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_value)
-        new_df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
-                      compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
-        print('{} {} done in {} min.\n------------\n------------\n\n'.format(name,
-                                                                             algorithm, round((time.time()-start)/60, 3)))
+    # for algorithm in algorithms:
+    pool2 = Pool(processes=10)
+    pool2.map(run_calculations, algorithm, G_bike_o, G_drive_o,
+              name, seeds_bike, seeds_car, car_value)
 
 
 if __name__ == '__main__':
     Global_start = time.time()
     """
     'London':'London, England',
-
-    """
-    cities = {'Budapest': 'Budapest, Hungary',
+    'Budapest': 'Budapest, Hungary',
               'Phoenix': 'Phoenix, Arizona, USA',
               'Detroit': 'Detroit, Michigan, USA',
               'Manhattan': 'Manhattan, New York City, New York, USA',
-              'Amsterdam': 'Amsterdam, Netherlands',
               'Mexico': 'DF, Mexico',
               'Singapore': 'Singapore, Singapore',
               'Copenhagen': 'Copenhagen Municipality, Denmark',
@@ -236,7 +240,11 @@ if __name__ == '__main__':
               'Bogota': 'Bogotá, Colombia',
               'LA': 'Los Angeles, Los Angeles County, California, USA',
               'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
-              }
+
+    """
+    cities = {
+        'Amsterdam': 'Amsterdam, Netherlands'
+    }
     # 'London': 'London, England'
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
     pool = Pool(processes=10)
