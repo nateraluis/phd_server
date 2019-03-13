@@ -189,7 +189,7 @@ def run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car
     start = time.time()
     G_bike = G_bike_o.copy()
     G_drive = G_drive_o.copy()
-    print('Starting with {}'.format(name))
+
     # Load the dataframe
 
     df = load_df(name, algorithm)
@@ -207,6 +207,7 @@ def run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car
 
 
 def main(name):
+    print('Starting with {}'.format(name))
     algorithms = ['greedy_min', 'greedy_LCC', 'random', 'min_delta']  #
     G_bike_o, G_drive_o = load_graphs(name)
     seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 1000)
