@@ -148,6 +148,14 @@ def get_lcc(G):
     return wcc[0]
 
 
+def get_travel_distance(G, u_v):
+    path = nx.shortest_path_length(G, u_v[0], u_v[1], weight='length')
+    distance = 0
+    for i, j in zip(path[:-1], path[1:]):
+        distance += float(G[i][j][0]['length'])
+    return distance
+
+
 def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_value):
 
     d_ij_b = []
@@ -170,8 +178,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
             if nx.has_path(G_bike, i_j[0], i_j[1]):
                 euclidean_distance = euclidean_dist_vec(
                     G_bike.nodes[i_j[0]]['y'], G_bike.nodes[i_j[0]]['x'], G_bike.nodes[i_j[1]]['y'], G_bike.nodes[i_j[0]]['x'])
-                avg_bike.append(euclidean_distance/nx.shortest_path_length(G_bike,
-                                                                           i_j[0], i_j[1], weight='length'))
+                avg_bike.append(euclidean_distance/get_travel_distance(G_bike, i_j))
             else:
                 avg_bike.append(0)
         bike_value = np.average(avg_bike)
@@ -208,15 +215,16 @@ def run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car
 
 def main(name):
     print('Starting with {}'.format(name))
-    algorithms = ['min_delta', 'random']  # 'greedy_min', 'greedy_LCC',
+    algorithms = ['greedy_min', 'greedy_LCC', 'min_delta', 'random']  #
     G_bike_o, G_drive_o = load_graphs(name)
     seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 1000)
     avg_street = []
     for u_v in seeds_car:
         euclidean_distance = euclidean_dist_vec(G_drive_o.nodes[u_v[0]]['y'],
                                                 G_drive_o.nodes[u_v[0]]['x'], G_drive_o.nodes[u_v[1]]['y'], G_drive_o.nodes[u_v[0]]['x'])
-        avg_street.append(euclidean_distance/nx.shortest_path_length(G_drive_o,
-                                                                     u_v[0], u_v[1], weight='length'))
+
+        travel_distance = get_travel_distance(G_drive_o, u_v)
+        avg_street.append(euclidean_distance/travel_distance)
     car_value = np.average(avg_street)  # Average efficiency in the car layer
 
     for algorithm in algorithms:
@@ -227,23 +235,22 @@ if __name__ == '__main__':
     Global_start = time.time()
     """
     'London':'London, England',
-'Mexico': 'DF, Mexico',
-'Singapore': 'Singapore, Singapore',
-'Copenhagen': 'Copenhagen Municipality, Denmark',
-'Barcelona': 'Barcelona, Catalunya, Spain',
-'Portland': 'Portland, Oregon, USA',
-'Bogota': 'Bogotá, Colombia',
-'LA': 'Los Angeles, Los Angeles County, California, USA',
-'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
-'Budapest': 'Budapest, Hungary',
-          'Phoenix': 'Phoenix, Arizona, USA',
-          'Detroit': 'Detroit, Michigan, USA',
-          'Manhattan': 'Manhattan, New York City, New York, USA',
-    """
-    cities = {
-        'Amsterdam': 'Amsterdam, Netherlands'
 
-    }
+    """
+    cities = {'Mexico': 'DF, Mexico',
+              'Singapore': 'Singapore, Singapore',
+              'Copenhagen': 'Copenhagen Municipality, Denmark',
+              'Barcelona': 'Barcelona, Catalunya, Spain',
+              'Portland': 'Portland, Oregon, USA',
+              'Bogota': 'Bogotá, Colombia',
+              'LA': 'Los Angeles, Los Angeles County, California, USA',
+              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
+              'Budapest': 'Budapest, Hungary',
+              'Phoenix': 'Phoenix, Arizona, USA',
+              'Detroit': 'Detroit, Michigan, USA',
+              'Manhattan': 'Manhattan, New York City, New York, USA',
+              'Amsterdam': 'Amsterdam, Netherlands'
+              }
     # 'London': 'London, England'
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
     pool = Pool(processes=10)
