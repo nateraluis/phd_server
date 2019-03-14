@@ -237,15 +237,15 @@ if __name__ == '__main__':
     'London':'London, England',
 
     """
-    cities = {'Mexico': 'DF, Mexico',
+    cities = {'Budapest': 'Budapest, Hungary',
+              'Mexico': 'DF, Mexico',
               'Singapore': 'Singapore, Singapore',
               'Copenhagen': 'Copenhagen Municipality, Denmark',
               'Barcelona': 'Barcelona, Catalunya, Spain',
               'Portland': 'Portland, Oregon, USA',
               'Bogota': 'Bogotá, Colombia',
               'LA': 'Los Angeles, Los Angeles County, California, USA',
-              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
-              'Budapest': 'Budapest, Hungary',
+              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia',
               'Phoenix': 'Phoenix, Arizona, USA',
               'Detroit': 'Detroit, Michigan, USA',
               'Manhattan': 'Manhattan, New York City, New York, USA',
