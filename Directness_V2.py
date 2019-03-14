@@ -162,9 +162,6 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
     d_ij_s = []
     print('Calculating {}'.format(name))
     start = time.time()
-    # Get the seeds
-
-    print('Calculations done fore cars, d_ij^s = {}'.format(car_value))
 
     for ind, row in df.iterrows():
         temp_start = time.time()
@@ -184,8 +181,8 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
         bike_value = np.average(avg_bike)
         d_ij_b.append(bike_value)
         d_ij_s.append(car_value)
-        print('{} {} calculation {}/{} done in {} s To go: {} min.'.format(name, algorithm, ind,
-                                                                           len(df), time.time()-temp_start, round(((len(df)-ind)*(time.time()-temp_start))/60, 3)))
+        print('{} {} calculation {}/{} Efficiency: {}/{} done in {} s To go: {} min.'.format(name, algorithm, ind,
+                                                                                             len(df), bike_value, car_value, time.time()-temp_start, round(((len(df)-ind)*(time.time()-temp_start))/60, 3)))
     df['d_ij_b'] = d_ij_b
     df['d_ij_s'] = d_ij_s
     print('{} done in {} min'.format(name, round((time.time()-start)/60, 3)))
@@ -218,7 +215,7 @@ def main(name):
     algorithms = ['greedy_min', 'greedy_LCC', 'min_delta', 'random']  #
     G_bike_o, G_drive_o = load_graphs(name)
     print('{} data loaded'.format(name))
-    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 100)
+    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 1000)
     avg_street = []
     for u_v in seeds_car:
         euclidean_distance = euclidean_dist_vec(G_drive_o.nodes[u_v[0]]['y'],
@@ -227,7 +224,7 @@ def main(name):
         travel_distance = get_travel_distance(G_drive_o, u_v)
         avg_street.append(euclidean_distance/travel_distance)
     car_value = np.average(avg_street)  # Average efficiency in the car layer
-
+    print('Calculations done fore cars, d_ij^s = {}'.format(car_value))
     for algorithm in algorithms:
         run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car, car_value)
 
@@ -238,7 +235,8 @@ if __name__ == '__main__':
     'London':'London, England',
 
     """
-    cities = {'Budapest': 'Budapest, Hungary',
+    cities = {'Amsterdam': 'Amsterdam, Netherlands',
+              'Budapest': 'Budapest, Hungary',
               'Mexico': 'DF, Mexico',
               'Singapore': 'Singapore, Singapore',
               'Copenhagen': 'Copenhagen Municipality, Denmark',
@@ -250,11 +248,10 @@ if __name__ == '__main__':
               'Phoenix': 'Phoenix, Arizona, USA',
               'Detroit': 'Detroit, Michigan, USA',
               'Manhattan': 'Manhattan, New York City, New York, USA',
-              'Amsterdam': 'Amsterdam, Netherlands'
               }
     # 'London': 'London, England'
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
-    pool = Pool(processes=10)
+    pool = Pool(processes=15)
     pool.map(main, cities)
 
     print('All cities done in {} min'.format((time.time()-Global_start)/60))
