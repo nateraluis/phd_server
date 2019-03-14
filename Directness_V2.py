@@ -149,7 +149,7 @@ def get_lcc(G):
 
 
 def get_travel_distance(G, u_v):
-    path = nx.shortest_path_length(G, u_v[0], u_v[1], weight='length')
+    path = nx.shortest_path(G, u_v[0], u_v[1], weight='length')
     distance = 0
     for i, j in zip(path[:-1], path[1:]):
         distance += float(G[i][j][0]['length'])
