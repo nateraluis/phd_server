@@ -166,7 +166,9 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
     d_ij_s = []
     print('Calculating {}'.format(name))
     start = time.time()
-
+    distances_ij = {}
+    for i_j in seeds_bike:
+        distances_ij[i_j] = 0
     for ind, row in df.iterrows():
         temp_start = time.time()
         print('{} {}: {}/{}'.format(name, algorithm, ind, len(df)))
@@ -174,10 +176,6 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
         if ind > 0:
             G_bike.add_edge(row['i'], row['j'], length=euclidean_dist_vec(G_bike.nodes[row['i']]['y'],
                                                                           G_bike.nodes[row['i']]['x'], G_bike.nodes[row['j']]['y'], G_bike.nodes[row['j']]['x']))
-        cc = get_lcc(G_bike)
-        distances_ij = {}
-        for i_j in seeds_bike:
-            distances_ij[i_j] = 0
         for i_j in seeds_bike:
             if distances_ij[i_j] > 0:
                 avg_bike.append(euclidean_distance/distances_ij[i_j])
@@ -193,7 +191,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
         d_ij_b.append(bike_value)
         d_ij_s.append(car_value)
         print('{} {} calculation {}/{} Efficiency: {}/{} done in {} s To go: {} min.'.format(name, algorithm, ind,
-                                                                                             len(df), bike_value, car_value, time.time()-temp_start, round(((len(df)-ind)*(time.time()-temp_start))/60, 3)))
+                                                                                             len(df), round(bike_value, 3), round(car_value, 3), time.time()-temp_start, round(((len(df)-ind)*(time.time()-temp_start))/60, 3)))
     df['d_ij_b'] = d_ij_b
     df['d_ij_s'] = d_ij_s
     print('{} done in {} min'.format(name, round((time.time()-start)/60, 3)))
@@ -226,7 +224,7 @@ def main(name):
     algorithms = ['greedy_min', 'greedy_LCC', 'min_delta', 'random']  #
     G_bike_o, G_drive_o = load_graphs(name)
     print('{} data loaded'.format(name))
-    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 100)
+    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 1000)
     avg_street = []
     for u_v in seeds_car:
         euclidean_distance = euclidean_dist_vec(G_drive_o.nodes[u_v[0]]['y'],
