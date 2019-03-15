@@ -152,7 +152,11 @@ def get_travel_distance(G, u_v):
     path = nx.shortest_path(G, u_v[0], u_v[1], weight='length')
     distance = 0
     for i, j in zip(path[:-1], path[1:]):
-        distance += float(G[i][j][0]['length'])
+        try:
+            distance += float(G[i][j][0]['length'])
+        except:
+            print('Error with {} {}'.format(G, u_v))
+            distance += float(G[i][j][1]['length'])
     return distance
 
 
@@ -215,12 +219,11 @@ def main(name):
     algorithms = ['greedy_min', 'greedy_LCC', 'min_delta', 'random']  #
     G_bike_o, G_drive_o = load_graphs(name)
     print('{} data loaded'.format(name))
-    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 1000)
+    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 100)
     avg_street = []
     for u_v in seeds_car:
         euclidean_distance = euclidean_dist_vec(G_drive_o.nodes[u_v[0]]['y'],
                                                 G_drive_o.nodes[u_v[0]]['x'], G_drive_o.nodes[u_v[1]]['y'], G_drive_o.nodes[u_v[0]]['x'])
-
         travel_distance = get_travel_distance(G_drive_o, u_v)
         avg_street.append(euclidean_distance/travel_distance)
     car_value = np.average(avg_street)  # Average efficiency in the car layer
