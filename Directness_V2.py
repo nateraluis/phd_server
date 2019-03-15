@@ -155,64 +155,65 @@ def get_travel_distance(G, u_v):
         try:
             distance += float(G[i][j][0]['length'])
         except:
-            distance += euclidean_dist_vec(G.nodes[i]['y'], G.nodes[i]['x'], G.nodes[j]['y'], G.nodes[j]['x']))
+            distance += euclidean_dist_vec(G.nodes[i]['y'],
+                                           G.nodes[i]['x'], G.nodes[j]['y'], G.nodes[j]['x'])
     return distance
 
 
 def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_value):
 
-    d_ij_b=[]
-    d_ij_s=[]
+    d_ij_b = []
+    d_ij_s = []
     print('Calculating {}'.format(name))
-    start=time.time()
-    distances_ij={}
+    start = time.time()
+    distances_ij = {}
     for i_j in seeds_bike:
-        distances_ij[i_j]=0
+        distances_ij[i_j] = 0
     for ind, row in df.iterrows():
-        temp_start=time.time()
+        temp_start = time.time()
         print('{} {}: {}/{}'.format(name, algorithm, ind, len(df)))
-        avg_bike=[]
+        avg_bike = []
         if ind > 0:
-            G_bike.add_edge(row['i'], row['j'], length = euclidean_dist_vec(G_bike.nodes[row['i']]['y'],
+            G_bike.add_edge(row['i'], row['j'], length=euclidean_dist_vec(G_bike.nodes[row['i']]['y'],
                                                                           G_bike.nodes[row['i']]['x'], G_bike.nodes[row['j']]['y'], G_bike.nodes[row['j']]['x']))
         for i_j in seeds_bike:
             if distances_ij[i_j] > 0:
                 avg_bike.append(euclidean_distance/distances_ij[i_j])
             elif nx.has_path(G_bike, i_j[0], i_j[1]):
-                euclidean_distance=euclidean_dist_vec(
+                euclidean_distance = euclidean_dist_vec(
                     G_bike.nodes[i_j[0]]['y'], G_bike.nodes[i_j[0]]['x'], G_bike.nodes[i_j[1]]['y'], G_bike.nodes[i_j[0]]['x'])
-                bike_distance=get_travel_distance(G_bike, i_j)
+                bike_distance = get_travel_distance(G_bike, i_j)
                 avg_bike.append(euclidean_distance/bike_distance)
-                distances_ij[i_j]=bike_distance
+                distances_ij[i_j] = bike_distance
             else:
                 avg_bike.append(0)
-        bike_value=np.average(avg_bike)
+        bike_value = np.average(avg_bike)
         d_ij_b.append(bike_value)
         d_ij_s.append(car_value)
         print('{} {} calculation {}/{} Efficiency: {}/{} done in {} s To go: {} min.'.format(name, algorithm, ind,
                                                                                              len(df), round(bike_value, 3), round(car_value, 3), time.time()-temp_start, round(((len(df)-ind)*(time.time()-temp_start))/60, 3)))
-    df['d_ij_b']=d_ij_b
-    df['d_ij_s']=d_ij_s
+    df['d_ij_b'] = d_ij_b
+    df['d_ij_s'] = d_ij_s
     print('{} done in {} min'.format(name, round((time.time()-start)/60, 3)))
     return df
 
 
 def run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car, car_value):
-    start=time.time()
-    G_bike=G_bike_o.copy()
-    G_drive=G_drive_o.copy()
+    start = time.time()
+    G_bike = G_bike_o.copy()
+    G_drive = G_drive_o.copy()
 
     # Load the dataframe
 
-    df=load_df(name, algorithm)
+    df = load_df(name, algorithm)
     # Load the graph
 
-    data_path='../Data/WCC/new/'
+    data_path = '../Data/WCC/new/'
     assure_path_exists(data_path)
     print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
                                                                           algorithm, round(time.time()-start, 3)))
-    new_df=calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_value)
-    new_df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep = ",", na_rep = '', float_format = None, columns = None, header = True, index = True, index_label = None, mode = 'w', encoding = None,
+    new_df = calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_value)
+    new_df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
                   compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
     print('{} {} done in {} min.\n------------\n------------\n\n'.format(name,
                                                                          algorithm, round((time.time()-start)/60, 3)))
