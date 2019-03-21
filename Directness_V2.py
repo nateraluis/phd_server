@@ -152,13 +152,14 @@ def get_travel_distance(G, u_v):
     path = nx.shortest_path(G, u_v[0], u_v[1], weight='length')
     distance = 0
     for i, j in zip(path[:-1], path[1:]):
-        try:
-            distance += float(G[i][j][0]['length'])
-        except:
-            print('Error: {} {}'.format(G, u_v))
-            pass
-            distance += euclidean_dist_vec(G.nodes[i]['y'],
-                                           G.nodes[i]['x'], G.nodes[j]['y'], G.nodes[j]['x'])
+        distance += float(G[i][j][0]['length'])
+        # try:
+        #    distance += float(G[i][j][0]['length'])
+        # except:
+        #    print('Error: {} {}'.format(G, u_v))
+        #    pass
+        #    distance += euclidean_dist_vec(G.nodes[i]['y'],
+        #                                   G.nodes[i]['x'], G.nodes[j]['y'], G.nodes[j]['x'])
     return distance
 
 
