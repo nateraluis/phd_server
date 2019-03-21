@@ -148,6 +148,21 @@ def get_lcc(G):
     return wcc[0]
 
 
+def get_travel_distance(G, u_v):
+    path = nx.shortest_path(G, u_v[0], u_v[1], weight='length')
+    distance = 0
+    for i, j in zip(path[:-1], path[1:]):
+        distance += float(G[i][j][0]['length'])
+        # try:
+        #    distance += float(G[i][j][0]['length'])
+        # except:
+        #    print('Error: {} {}'.format(G, u_v))
+        #    pass
+        #    distance += euclidean_dist_vec(G.nodes[i]['y'],
+        #                                   G.nodes[i]['x'], G.nodes[j]['y'], G.nodes[j]['x'])
+    return distance
+
+
 def calculate_directness(df, G_bike, G_drive, name, algorithm):
     d_ij_b = []
     d_ij_s = []
@@ -162,10 +177,12 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm):
             G_bike.add_edge(row['i'], row['j'], length=euclidean_dist_vec(G_bike.nodes[row['i']]['y'],
                                                                           G_bike.nodes[row['i']]['x'], G_bike.nodes[row['j']]['y'], G_bike.nodes[row['j']]['x']))
         cc = get_lcc(G_bike)
-        seeds_bike, seeds_car = get_seeds(cc, G_drive, 1000)
+        seeds_bike, seeds_car = get_seeds(cc, G_drive, 100)
         for i_j, u_v in zip(seeds_bike, seeds_car):
-            avg_bike.append(nx.shortest_path_length(cc, i_j[0], i_j[1], weight='length'))
-            avg_street.append(nx.shortest_path_length(G_drive, u_v[0], u_v[1], weight='length'))
+            euclidean_distance = euclidean_dist_vec(
+                cc.nodes[i_j[0]]['y'], cc.nodes[i_j[0]]['x'], cc.nodes[i_j[1]]['y'], cc.nodes[i_j[0]]['x'])
+            avg_bike.append(euclidean_distance/get_travel_distance(cc, i_j))
+            avg_street.append(euclidean_distance/get_travel_distance(G_drive, u_v))
         d_ij_b.append(np.average(avg_bike))
         d_ij_s.append(np.average(avg_street))
         print('{} {} calculation {}/{} done in {} s To go: {} min.'.format(name, algorithm, ind,
@@ -177,7 +194,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm):
 
 
 def main(name):
-    algorithms = ['greedy_LCC']  # , 'random', 'min_delta', 'greedy_min'
+    algorithms = ['greedy_LCC', 'random', 'min_delta', 'greedy_min']  # ,
     for algorithm in algorithms:
         start = time.time()
         print('Starting with {}'.format(name))
@@ -186,7 +203,7 @@ def main(name):
         df = load_df(name, algorithm)
         # Load the graph
         G_bike, G_drive = load_graphs(name)
-        data_path = '../Data/WCC/new/'
+        data_path = '../Data/WCC/OP_CC_Misi/'
         assure_path_exists(data_path)
         print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
                                                                               algorithm, round(time.time()-start, 3)))
