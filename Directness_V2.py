@@ -241,11 +241,9 @@ def main(name):
 
 if __name__ == '__main__':
     Global_start = time.time()
-    """
-    'London':'London, England',
 
-    """
     cities = {'Amsterdam': 'Amsterdam, Netherlands',
+              'London': 'London, England',
               'Budapest': 'Budapest, Hungary',
               'Mexico': 'DF, Mexico',
               'Singapore': 'Singapore, Singapore',
@@ -259,7 +257,7 @@ if __name__ == '__main__':
               'Detroit': 'Detroit, Michigan, USA',
               'Manhattan': 'Manhattan, New York City, New York, USA',
               }
-    # 'London': 'London, England'
+
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
     pool = Pool(processes=15)
     pool.map(main, cities)

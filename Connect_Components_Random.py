@@ -121,7 +121,7 @@ def get_data(G_bike, name):
         ncc += 1
         print('{} {}/{} done, elapsed time {} min, avg {} seg, to go: {} min.'.format(name, ncc, to_iterate,
                                                                                       round((time.time()-start)/60, 2), round((time.time()-start)/ncc, 2), round((((time.time()-start)/ncc)*to_iterate-ncc)/60, 2)))
-        if delta[-1] > 200000:
+        if delta[-1] > 100000:
             break
     return delta, nodes_cc, length_cc, i_s, j_s
 
@@ -142,12 +142,12 @@ def main(name):
 
 if __name__ == '__main__':
     Global_start = time.time()
-    cities = {'Phoenix': 'Phoenix, Arizona, USA',
+    """
+    'Phoenix': 'Phoenix, Arizona, USA',
               'Detroit': 'Detroit, Michigan, USA',
               'Manhattan': 'Manhattan, New York City, New York, USA',
               'Amsterdam': 'Amsterdam, Netherlands',
               'Mexico': 'DF, Mexico',
-              'London': 'London, England',
               'Singapore': 'Singapore, Singapore',
               'Budapest': 'Budapest, Hungary',
               'Copenhagen': 'Copenhagen Municipality, Denmark',
@@ -155,7 +155,11 @@ if __name__ == '__main__':
               'Portland': 'Portland, Oregon, USA',
               'Bogota': 'Bogotá, Colombia',
               'LA': 'Los Angeles, Los Angeles County, California, USA',
-              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'}
+              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
+    """
+    cities = {
+        'London': 'London, England'
+    }
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
     pool = Pool(processes=10)
     pool.map(main, cities)
