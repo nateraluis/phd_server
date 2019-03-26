@@ -152,14 +152,14 @@ def get_travel_distance(G, u_v):
     path = nx.shortest_path(G, u_v[0], u_v[1], weight='length')
     distance = 0
     for i, j in zip(path[:-1], path[1:]):
-        distance += float(G[i][j][0]['length'])
-        # try:
-        #    distance += float(G[i][j][0]['length'])
-        # except:
-        #    print('Error: {} {}'.format(G, u_v))
+        #distance += float(G[i][j][0]['length'])
+        try:
+            distance += float(G[i][j][0]['length'])
+        except:
+            print('Error: {} {}'.format(G, u_v))
         #    pass
-        #    distance += euclidean_dist_vec(G.nodes[i]['y'],
-        #                                   G.nodes[i]['x'], G.nodes[j]['y'], G.nodes[j]['x'])
+            distance += euclidean_dist_vec(G.nodes[i]['y'],
+                                           G.nodes[i]['x'], G.nodes[j]['y'], G.nodes[j]['x'])
     return distance
 
 
@@ -170,8 +170,8 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
     print('Calculating {}'.format(name))
     start = time.time()
     distances_ij = {}
-    # for i_j in seeds_bike:
-    #    distances_ij[i_j] = 0
+    for i_j in seeds_bike:
+        distances_ij[i_j] = 0
     for ind, row in df.iterrows():
         temp_start = time.time()
         print('{} {}: {}/{}'.format(name, algorithm, ind, len(df)))
@@ -180,11 +180,11 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
             G_bike.add_edge(row['i'], row['j'], length=euclidean_dist_vec(G_bike.nodes[row['i']]['y'],
                                                                           G_bike.nodes[row['i']]['x'], G_bike.nodes[row['j']]['y'], G_bike.nodes[row['j']]['x']))
         for i_j in seeds_bike:
-            # if distances_ij[i_j] > 0:
-            #    avg_bike.append(euclidean_distance/distances_ij[i_j])
+            euclidean_distance = euclidean_dist_vec(
+                G_bike.nodes[i_j[0]]['y'], G_bike.nodes[i_j[0]]['x'], G_bike.nodes[i_j[1]]['y'], G_bike.nodes[i_j[0]]['x'])
+            if distances_ij[i_j] != 0:
+                avg_bike.append(euclidean_distance/distances_ij[i_j])
             if nx.has_path(G_bike, i_j[0], i_j[1]):
-                euclidean_distance = euclidean_dist_vec(
-                    G_bike.nodes[i_j[0]]['y'], G_bike.nodes[i_j[0]]['x'], G_bike.nodes[i_j[1]]['y'], G_bike.nodes[i_j[0]]['x'])
                 bike_distance = get_travel_distance(G_bike, i_j)
                 avg_bike.append(euclidean_distance/bike_distance)
                 distances_ij[i_j] = bike_distance
