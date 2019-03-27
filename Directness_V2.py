@@ -111,16 +111,19 @@ def get_seeds(G_bike, G_drive, pairs):
     seeds_bike = []
     seeds_car = []
     u = 0
-    while u < pairs+1:
+    for u in pairs:
         i = random.choice(list(G_bike.nodes(data=True)))
         j = random.choice(list(G_bike.nodes(data=True)))
-        if i[0] != j[0]:
+        u = ox.get_nearest_node(G_drive, (i[1]['y'], i[1]['x']))
+        v = ox.get_nearest_node(G_drive, (j[1]['y'], j[1]['x']))
+        if u != v or i[0] != j[0]:
+            seeds_car.append((u, v))
             seeds_bike.append((i[0], j[0]))
+        else:
+            i = random.choice(list(G_bike.nodes(data=True)))
+            j = random.choice(list(G_bike.nodes(data=True)))
             u = ox.get_nearest_node(G_drive, (i[1]['y'], i[1]['x']))
             v = ox.get_nearest_node(G_drive, (j[1]['y'], j[1]['x']))
-            if u != v:
-                seeds_car.append((u, v))
-                u += 1
     return seeds_bike, seeds_car
 
 
@@ -231,6 +234,7 @@ def main(name):
     G_bike_o, G_drive_o = load_graphs(name)
     print('{} data loaded'.format(name))
     seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 200)
+    print('{} bike seeds, {} car seeds'.format(len(seeds_bike), len(seeds_car)))
     avg_street = []
     for u_v in seeds_car:
         euclidean_distance = euclidean_dist_vec(G_drive_o.nodes[u_v[0]]['y'],
