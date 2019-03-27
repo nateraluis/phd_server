@@ -111,7 +111,7 @@ def get_seeds(G_bike, G_drive, pairs):
     seeds_bike = []
     seeds_car = []
     u = 0
-    for u in pairs:
+    for u in range(pairs):
         i = random.choice(list(G_bike.nodes(data=True)))
         j = random.choice(list(G_bike.nodes(data=True)))
         u = ox.get_nearest_node(G_drive, (i[1]['y'], i[1]['x']))
