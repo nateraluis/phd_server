@@ -110,14 +110,17 @@ def get_seeds(G_bike, G_drive, pairs):
     """
     seeds_bike = []
     seeds_car = []
-    for u in range(pairs):
+    u = 0
+    while u < pairs+1:
         i = random.choice(list(G_bike.nodes(data=True)))
         j = random.choice(list(G_bike.nodes(data=True)))
         if i[0] != j[0]:
             seeds_bike.append((i[0], j[0]))
             u = ox.get_nearest_node(G_drive, (i[1]['y'], i[1]['x']))
             v = ox.get_nearest_node(G_drive, (j[1]['y'], j[1]['x']))
-            seeds_car.append((u, v))
+            if u != v:
+                seeds_car.append((u, v))
+                u += 1
     return seeds_bike, seeds_car
 
 
@@ -153,14 +156,17 @@ def get_travel_distance(G, u_v):
     distance = 0
     for i, j in zip(path[:-1], path[1:]):
         #distance += float(G[i][j][0]['length'])
-        try:
-            distance += float(G[i][j][0]['length'])
-        except:
-            print('Error: {} {}'.format(G, u_v))
-        #    pass
-            distance += euclidean_dist_vec(G.nodes[i]['y'],
-                                           G.nodes[i]['x'], G.nodes[j]['y'], G.nodes[j]['x'])
-    return distance
+        if i != j:
+            try:
+                distance += float(G[i][j][0]['length'])
+            except:
+                print('Error: {} {}'.format(G, u_v))
+            #    pass
+                distance += euclidean_dist_vec(G.nodes[i]['y'],
+                                               G.nodes[i]['x'], G.nodes[j]['y'], G.nodes[j]['x'])
+            return distance
+        else:
+            return 0
 
 
 def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_value):
