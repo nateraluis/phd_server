@@ -155,6 +155,21 @@ def get_lcc(G):
 
 
 def get_travel_distance(G, u_v):
+    """Find the shortest path between two nodes and calculate the travel distance.
+
+    Parameters
+    ----------
+    G : nx.Graph
+        Networkx graph.
+    u_v : touple
+        Touple containing the origin and destination for the path.
+
+    Returns
+    -------
+    int
+        Distance for the path between 'u' to 'v'.
+
+    """
     path = nx.shortest_path(G, u_v[0], u_v[1], weight='length')
     distance = 0
     for i, j in zip(path[:-1], path[1:]):
@@ -233,7 +248,7 @@ def main(name):
     algorithms = ['greedy_min', 'greedy_LCC', 'min_delta', 'random']  #
     G_bike_o, G_drive_o = load_graphs(name)
     print('{} data loaded'.format(name))
-    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 200)
+    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 1000)
     print('{} bike seeds, {} car seeds'.format(len(seeds_bike), len(seeds_car)))
     avg_street = []
     for u_v in seeds_car:
