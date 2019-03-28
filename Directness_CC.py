@@ -233,7 +233,7 @@ def run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car
     df = load_df(name, algorithm)
     # Load the graph
 
-    data_path = '../Data/WCC/new/'
+    data_path = '../Data/WCC/OP_CC_Misi_v2/'
     assure_path_exists(data_path)
     print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
                                                                           algorithm, round(time.time()-start, 3)))
