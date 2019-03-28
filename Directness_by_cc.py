@@ -226,7 +226,7 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
     return df
 
 
-def run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car, car_value):
+def run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car, car_value, map_seeds, values_car):
     start = time.time()
     G_bike = G_bike_o.copy()
     G_drive = G_drive_o.copy()
@@ -253,7 +253,7 @@ def main(name):
     algorithms = ['greedy_min', 'greedy_LCC', 'min_delta', 'random']  #
     G_bike_o, G_drive_o = load_graphs(name)
     print('{} data loaded'.format(name))
-    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 100)
+    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 200)
     print('{} bike seeds, {} car seeds'.format(len(seeds_bike), len(seeds_car)))
     avg_street = []
     map_seeds = dict(zip(seeds_bike, seeds_car))
