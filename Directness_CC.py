@@ -91,7 +91,7 @@ def load_df(name, algorithm):
 
 
 def get_seeds(G_bike, G_drive, pairs):
-    """Short summary.
+    """Get x pairs of random pairs of nodes in the bike and street layer.
 
     Parameters
     ----------
@@ -110,14 +110,20 @@ def get_seeds(G_bike, G_drive, pairs):
     """
     seeds_bike = []
     seeds_car = []
+    u = 0
     for u in range(pairs):
         i = random.choice(list(G_bike.nodes(data=True)))
         j = random.choice(list(G_bike.nodes(data=True)))
-        if i[0] != j[0]:
+        u = ox.get_nearest_node(G_drive, (i[1]['y'], i[1]['x']))
+        v = ox.get_nearest_node(G_drive, (j[1]['y'], j[1]['x']))
+        if u != v or i[0] != j[0]:
+            seeds_car.append((u, v))
             seeds_bike.append((i[0], j[0]))
+        else:
+            i = random.choice(list(G_bike.nodes(data=True)))
+            j = random.choice(list(G_bike.nodes(data=True)))
             u = ox.get_nearest_node(G_drive, (i[1]['y'], i[1]['x']))
             v = ox.get_nearest_node(G_drive, (j[1]['y'], j[1]['x']))
-            seeds_car.append((u, v))
     return seeds_bike, seeds_car
 
 
@@ -149,93 +155,135 @@ def get_lcc(G):
 
 
 def get_travel_distance(G, u_v):
+    """Find the shortest path between two nodes and calculate the travel distance.
+
+    Parameters
+    ----------
+    G : nx.Graph
+        Networkx graph.
+    u_v : touple
+        Touple containing the origin and destination for the path.
+
+    Returns
+    -------
+    int
+        Distance for the path between 'u' to 'v'.
+
+    """
     path = nx.shortest_path(G, u_v[0], u_v[1], weight='length')
     distance = 0
     for i, j in zip(path[:-1], path[1:]):
+        #distance += float(G[i][j][0]['length'])
         try:
             distance += float(G[i][j][0]['length'])
         except:
-            distance += float(G[i][j]['length'])
-        # try:
-        #    distance += float(G[i][j][0]['length'])
-        # except:
-        #    print('Error: {} {}'.format(G, u_v))
+            print('Error: {} {}'.format(G, u_v))
         #    pass
-        #    distance += euclidean_dist_vec(G.nodes[i]['y'],
-        #                                   G.nodes[i]['x'], G.nodes[j]['y'], G.nodes[j]['x'])
+            distance += euclidean_dist_vec(G.nodes[i]['y'],
+                                           G.nodes[i]['x'], G.nodes[j]['y'], G.nodes[j]['x'])
     return distance
 
 
-def calculate_directness(df, G_bike, G_drive, name, algorithm):
+def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_value):
+
     d_ij_b = []
     d_ij_s = []
     print('Calculating {}'.format(name))
     start = time.time()
+    distances_ij = {}
+    for i_j in seeds_bike:
+        distances_ij[i_j] = 0
     for ind, row in df.iterrows():
         temp_start = time.time()
         print('{} {}: {}/{}'.format(name, algorithm, ind, len(df)))
         avg_bike = []
-        avg_street = []
         if ind > 0:
             G_bike.add_edge(row['i'], row['j'], length=euclidean_dist_vec(G_bike.nodes[row['i']]['y'],
                                                                           G_bike.nodes[row['i']]['x'], G_bike.nodes[row['j']]['y'], G_bike.nodes[row['j']]['x']))
-        cc = get_lcc(G_bike)
-        seeds_bike, seeds_car = get_seeds(cc, G_drive, 100)
-        for i_j, u_v in zip(seeds_bike, seeds_car):
+        for i_j in seeds_bike:
             euclidean_distance = euclidean_dist_vec(
-                cc.nodes[i_j[0]]['y'], cc.nodes[i_j[0]]['x'], cc.nodes[i_j[1]]['y'], cc.nodes[i_j[0]]['x'])
-            avg_bike.append(euclidean_distance/get_travel_distance(cc, i_j))
-            avg_street.append(euclidean_distance/get_travel_distance(G_drive, u_v))
-        d_ij_b.append(np.average(avg_bike))
-        d_ij_s.append(np.average(avg_street))
-        print('{} {} calculation {}/{} done in {} s To go: {} min.'.format(name, algorithm, ind,
-                                                                           len(df), time.time()-temp_start, round(((len(df)-ind)*(time.time()-temp_start))/60, 3)))
+                G_bike.nodes[i_j[0]]['y'], G_bike.nodes[i_j[0]]['x'], G_bike.nodes[i_j[1]]['y'], G_bike.nodes[i_j[0]]['x'])
+            if distances_ij[i_j] != 0:
+                avg_bike.append(euclidean_distance/distances_ij[i_j])
+            if nx.has_path(G_bike, i_j[0], i_j[1]):
+                bike_distance = get_travel_distance(G_bike, i_j)
+                avg_bike.append(euclidean_distance/bike_distance)
+                distances_ij[i_j] = bike_distance
+            else:
+                pass
+                # avg_bike.append(0)
+        bike_value = np.average(avg_bike)
+        d_ij_b.append(bike_value)
+        d_ij_s.append(car_value)
+        print('{} {} calculation {}/{} Efficiency: {}/{} done in {} s To go: {} min.'.format(name, algorithm, ind,
+                                                                                             len(df), round(bike_value, 3), round(car_value, 3), time.time()-temp_start, round(((len(df)-ind)*(time.time()-temp_start))/60, 3)))
     df['d_ij_b'] = d_ij_b
     df['d_ij_s'] = d_ij_s
     print('{} done in {} min'.format(name, round((time.time()-start)/60, 3)))
     return df
 
 
-def main(name):
-    algorithms = ['greedy_LCC', 'random', 'min_delta', 'greedy_min']  # ,
-    for algorithm in algorithms:
-        start = time.time()
-        print('Starting with {}'.format(name))
-        # Load the dataframe
+def run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car, car_value):
+    start = time.time()
+    G_bike = G_bike_o.copy()
+    G_drive = G_drive_o.copy()
 
-        df = load_df(name, algorithm)
-        # Load the graph
-        G_bike, G_drive = load_graphs(name)
-        data_path = '../Data/WCC/OP_CC_Misi/'
-        assure_path_exists(data_path)
-        print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
-                                                                              algorithm, round(time.time()-start, 3)))
-        new_df = calculate_directness(df, G_bike, G_drive, name, algorithm)
-        new_df.to_csv(data_path+'{}_{}_one_link.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
-                      compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
-        print('{} {} done in {} min.\n------------\n------------\n\n'.format(name,
-                                                                             algorithm, round((time.time()-start)/60, 3)))
+    # Load the dataframe
+
+    df = load_df(name, algorithm)
+    # Load the graph
+
+    data_path = '../Data/WCC/new/'
+    assure_path_exists(data_path)
+    print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
+                                                                          algorithm, round(time.time()-start, 3)))
+    new_df = calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_value)
+    new_df.to_csv(data_path+'{}_{}.csv'.format(name, algorithm), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
+                  compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
+    print('{} {} done in {} min.\n------------\n------------\n\n'.format(name,
+                                                                         algorithm, round((time.time()-start)/60, 3)))
+
+
+def main(name):
+    print('Starting with {}'.format(name))
+    algorithms = ['greedy_min', 'greedy_LCC', 'min_delta', 'random']  #
+    G_bike_o, G_drive_o = load_graphs(name)
+    print('{} data loaded'.format(name))
+    seeds_bike, seeds_car = get_seeds(G_bike_o, G_drive_o, 200)
+    print('{} bike seeds, {} car seeds'.format(len(seeds_bike), len(seeds_car)))
+    avg_street = []
+    for u_v in seeds_car:
+        euclidean_distance = euclidean_dist_vec(G_drive_o.nodes[u_v[0]]['y'],
+                                                G_drive_o.nodes[u_v[0]]['x'], G_drive_o.nodes[u_v[1]]['y'], G_drive_o.nodes[u_v[0]]['x'])
+        travel_distance = get_travel_distance(G_drive_o, u_v)
+        avg_street.append(euclidean_distance/travel_distance)
+    car_value = np.average(avg_street)  # Average efficiency in the car layer
+    print('Calculations done fore cars, d_ij^s = {}'.format(car_value))
+    for algorithm in algorithms:
+        run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car, car_value)
 
 
 if __name__ == '__main__':
     Global_start = time.time()
-    # 'London':'London, England',
-    # 'Phoenix': 'Phoenix, Arizona, USA',
-    # 'Detroit': 'Detroit, Michigan, USA',
-    # 'Manhattan': 'Manhattan, New York City, New York, USA',
-    # 'Amsterdam': 'Amsterdam, Netherlands',
-    # 'Mexico': 'DF, Mexico',
-    # 'Singapore': 'Singapore, Singapore',
-    # 'Copenhagen': 'Copenhagen Municipality, Denmark',
-    # 'Barcelona': 'Barcelona, Catalunya, Spain',
-    # 'Portland': 'Portland, Oregon, USA',
-    # 'Bogota': 'Bogotá, Colombia',
-    # 'LA': 'Los Angeles, Los Angeles County, California, USA',
-    # 'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
-    cities = {'Budapest': 'Budapest, Hungary',
+
+    cities = {'Amsterdam': 'Amsterdam, Netherlands',
+              'London': 'London, England',
+              'Budapest': 'Budapest, Hungary',
+              'Mexico': 'DF, Mexico',
+              'Singapore': 'Singapore, Singapore',
+              'Copenhagen': 'Copenhagen Municipality, Denmark',
+              'Barcelona': 'Barcelona, Catalunya, Spain',
+              'Portland': 'Portland, Oregon, USA',
+              'Bogota': 'Bogotá, Colombia',
+              'LA': 'Los Angeles, Los Angeles County, California, USA',
+              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia',
+              'Phoenix': 'Phoenix, Arizona, USA',
+              'Detroit': 'Detroit, Michigan, USA',
+              'Manhattan': 'Manhattan, New York City, New York, USA',
               }
-    # 'London': 'London, England'
+
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
-    pool = Pool(processes=10)
+    pool = Pool(processes=15)
     pool.map(main, cities)
+
     print('All cities done in {} min'.format((time.time()-Global_start)/60))
