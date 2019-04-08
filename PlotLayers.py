@@ -15,7 +15,8 @@ ox.config(data_folder='../Data', logs_folder='../logs',
           use_cache=True, log_console=False, log_name='osmnx',
           log_file=True, log_filename='osmnx')
 
-colors_layers = ['#e9c46a', '#e76f51', '#f4a261', '#264653']
+# ['#e9c46a', '#e76f51', '#f4a261', '#264653']
+colors_layers = ['#8dd3c7', '#80b1d3', '#fb8072', '#bebada']
 names = ['_walk', '_bike', '_rail', '_drive']
 now = datetime.datetime.now()
 
@@ -35,7 +36,8 @@ cities = {'Phoenix':'Phoenix, Arizona, USA',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 '''
-cities = {'Melbourne': 'Melbourne, Australia'}
+cities = {'Amsterdam': 'Amsterdam, Netherlands',
+          'London': 'London, England'}
 
 
 def assure_path_exists(path):
@@ -84,8 +86,8 @@ for name, city in cities.items():
         if len(layer.nodes) > 0:
             fig, ax = ox.plot_graph(layer, fig_height=30, show=False, close=False,
                                     edge_color=color, node_color=color, node_alpha=0)
-            fig.savefig(path_plot+'{}_{}{}_Layer.png'.format(now.date(), name,
-                                                             name_layer), dpi=350, bbox_inches='tight', transparent=True)
+            fig.savefig(path_plot+'{}{}_Layer.png'.format(name,
+                                                          name_layer), dpi=350, bbox_inches='tight', transparent=True)
 
             plt.close()
 

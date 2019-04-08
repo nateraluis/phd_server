@@ -9,7 +9,7 @@ import osmnx as ox
 import random
 from multiprocessing import Pool
 '''
-Script to calculate the directness as the average percent difference in shortest path distances of bikes using bike lanes versus using streets, measuring only the nodes inside the cc.
+Misi option 1 Script to calculate the directness as the average percent difference in shortest path distances of bikes using bike lanes versus using streets, measuring only the nodes inside the cc.
 '''
 
 # Confg osmnx
