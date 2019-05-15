@@ -16,7 +16,7 @@ ox.config(data_folder='../Data', logs_folder='../logs',
           log_file=True, log_filename='osmnx')
 
 # ['#e9c46a', '#e76f51', '#f4a261', '#264653']
-colors_layers = ['#8dd3c7', '#80b1d3', '#fb8072', '#bebada']
+colors_layers = ['#35352f', '#35352f', '#35352f', '#35352f']
 names = ['_walk', '_bike', '_rail', '_drive']
 now = datetime.datetime.now()
 
@@ -36,7 +36,7 @@ cities = {'Phoenix':'Phoenix, Arizona, USA',
           'LA':'Los Angeles, Los Angeles County, California, USA',
           'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
 '''
-cities = {'Amsterdam': 'Amsterdam, Netherlands',
+cities = {'Copenhagen': 'Copenhagen Municipality, Denmark',
           'London': 'London, England'}
 
 
