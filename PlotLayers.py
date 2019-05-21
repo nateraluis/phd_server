@@ -79,13 +79,14 @@ for name, city in cities.items():
     print('  + Geometry loaded')
 
     layers = [G_walk, G_bike, G_rail, G_drive]
-
+    widths = [1, 2, 1.5, 1]
     #4.- Plot
     print('\nStarting the ploting...')
-    for layer, color, name_layer in zip(layers, colors_layers, names):
+    for layer, color, name_layer, width in zip(layers, colors_layers, names, widths):
         if len(layer.nodes) > 0:
             fig, ax = ox.plot_graph(layer, fig_height=30, show=False, close=False,
-                                    edge_color=color, node_color=color, node_alpha=0)
+                                    edge_color=color, node_color=color, node_alpha=0, edge_linewidth=width)
+
             fig.savefig(path_plot+'{}{}_Layer.png'.format(name,
                                                           name_layer), dpi=350, bbox_inches='tight', transparent=True)
 
