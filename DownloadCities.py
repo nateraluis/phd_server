@@ -4,7 +4,7 @@ import geopandas as gpd
 import pandas as pd
 import networkx as nx
 import time
-
+from multiprocessing import Pool
 
 useful_tags = ox.settings.useful_tags_path + ['cycleway']
 ox.config(data_folder='../Data', logs_folder='../logs',
@@ -14,23 +14,10 @@ ox.config(data_folder='../Data', logs_folder='../logs',
 
 crs_osm = {'init': 'epsg:4326'}  # crs that osm uses
 
-'''
-cities = {'Phoenix':'Phoenix, Arizona, USA',
-          'Amsterdam':'Amsterdam, Netherlands',
-          'Detroit':'Detroit, Michigan, USA',
-          'Manhattan':'Manhattan, New York City, New York, USA',
-          'Mexico':'DF, Mexico',
-          'London':'London, England',
-          'Singapore':'Singapore, Singapore',
-          'Budapest':'Budapest, Hungary',
-          'Copenhagen':'Copenhagen Municipality, Denmark',
-          'Barcelona':'Barcelona, Catalunya, Spain',
-          'Portland':'Portland, Oregon, USA',
-          'Bogota':'Bogotá, Colombia',
-          'LA':'Los Angeles, Los Angeles County, California, USA',
-          'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
-'''
-cities = {'Melbourne': 'Melbourne, Australia'}
+
+
+
+#cities = {'Melbourne': 'Melbourne, Australia'}
 
 
 def assure_path_exists(path):
@@ -82,25 +69,22 @@ def bike_walk_network(G):
     return G
 
 
-def bike_network(geometry):
-    G = ox.graph_from_polygon(polygon=geometry, network_type='all',
+def bike_network(geometry, name):
+    G = ox.graph_from_polygon(polygon=geometry, network_type='bike',
                               name=name, retain_all=True, simplify=False)
-    non_cycleways = [(u, v, k) for u, v, k, d in G.edges(keys=True, data=True)
-                     if not ('cycleway' in d or d['highway'] == 'cycleway')]
-    G.remove_edges_from(non_cycleways)
+    #non_cycleways = [(u, v, k) for u, v, k, d in G.edges(keys=True, data=True)
+    #                 if not ('cycleway' in d or d['highway'] == 'cycleway')]
+    #G.remove_edges_from(non_cycleways)
     G = ox.simplify_graph(G)
     return G
 
-
-# Execute the script
-start = time.time()
-for name, city in cities.items():
+def main(name):
     start_0 = time.time()
 
-    path = '../Data/{}/'.format(name)
+    path = '../Data/bike_streets/{}/'.format(name)
     assure_path_exists(path)
 
-    path_simple = '../Data/{}/simple/'.format(name)
+    path_simple = '../Data/bike_streets/{}/simple/'.format(name)
     assure_path_exists(path_simple)
 
     print('Starting with: {}'.format(name))
@@ -111,6 +95,7 @@ for name, city in cities.items():
     geometry = gdf.unary_union
     print('{} geometry loaded, starting the download...'.format(name))
 
+    '''
     # Drive
     G_drive = ox.graph_from_polygon(polygon=geometry, network_type='drive_service',
                                     name=name, retain_all=False, infrastructure='way["highway"]')
@@ -134,13 +119,13 @@ for name, city in cities.items():
     nx.write_edgelist(G_simple, path=path_simple+'{}_walk_simple.txt'.format(name))
     print('{} Pedestrian simplified and saved. Elapsed time {} s\nStarting with bike network...\n'.format(
         name, round(time.time()-start_0, 2)))
-
+    '''
     # Bike
-    if name == 'Beihai':
-        G = bike_walk_network(G_drive)
-    else:
-        G = bike_network(geometry)
-        G = ox.project_graph(G)
+    #if name == 'Beihai':
+    #    G = bike_walk_network(G_drive)
+    #else:
+    G = bike_network(geometry, name)
+    G = ox.project_graph(G)
     ox.save_graphml(G, filename='{}_bike.graphml'.format(name), folder=path)
     print('{} Bike downloaded and saved. Elapsed time {} s\nSimplifying the network...'.format(
         name, round(time.time()-start_0, 2)))
@@ -148,7 +133,7 @@ for name, city in cities.items():
     nx.write_edgelist(G_simple, path=path_simple+'{}_bike_simple.txt'.format(name))
     print('{} Bike simplified and saved. Elapsed time {} s\nStarting with rail network...\n'.format(
         name, round(time.time()-start_0, 2)))
-
+    '''
     # Rail
     try:
         G = ox.graph_from_polygon(polygon=geometry, network_type='none',
@@ -164,8 +149,27 @@ for name, city in cities.items():
     nx.write_edgelist(G_simple, path=path_simple+'{}_rail_simple.txt'.format(name))
     print('{} Bike simplified and saved. Elapsed time {} s\n\n'.format(
         name, round(time.time()-start_0, 2)))
-
+    '''
     print('--------------------\n{} done in {} s\n--------------------\n\n\n'.format(name,
                                                                                      round(time.time()-start_0, 2)))
 
-print('All cities done in {} min'.format((time.time()-start)/60))
+if __name__ == '__main__':
+    # Execute the script
+    start = time.time()
+    cities = {'Phoenix':'Phoenix, Arizona, USA',
+            'Amsterdam':'Amsterdam, Netherlands',
+            'Detroit':'Detroit, Michigan, USA',
+            'Manhattan':'Manhattan, New York City, New York, USA',
+            'Mexico':'DF, Mexico',
+            'London':'London, England',
+            'Singapore':'Singapore, Singapore',
+            'Budapest':'Budapest, Hungary',
+            'Copenhagen':'Copenhagen Municipality, Denmark',
+            'Barcelona':'Barcelona, Catalunya, Spain',
+            'Portland':'Portland, Oregon, USA',
+            'Bogota':'Bogota, Colombia',
+            'LA':'Los Angeles, Los Angeles County, California, USA',
+            'Jakarta':'Daerah Khusus Ibukota Jakarta, Indonesia'}
+    pool = Pool(processes=15)
+    pool.map(main, cities)
+    print('All cities done in {} min'.format((time.time()-start)/60))

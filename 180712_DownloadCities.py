@@ -4,7 +4,7 @@ import time
 import osmnx as ox
 import os
 import networkx as nx
-get_ipython().run_line_magic('matplotlib', 'inline')
+#get_ipython().run_line_magic('matplotlib', 'inline')
 
 
 useful_tags = ox.settings.useful_tags_path + ['cycleway']
@@ -25,13 +25,13 @@ def get_network(city, n_type='all', infrastructure='way["highway"]'):
 
 def bike_network(city):
     try:
-        G = ox.graph_from_place(city, network_type='all', simplify=False, which_result=1)
+        G = ox.graph_from_place(city, network_type='bike', simplify=False, which_result=1)
     except:
-        G = ox.graph_from_place(city, network_type='all', simplify=False, which_result=2)
-    non_cycleways = [(u, v, k) for u, v, k, d in G.edges(keys=True, data=True)
-                     if not ('cycleway' in d or d['highway'] == 'cycleway')]
-    G.remove_edges_from(non_cycleways)
-    G = ox.remove_isolated_nodes(G)
+        G = ox.graph_from_place(city, network_type='bike', simplify=False, which_result=2)
+    #non_cycleways = [(u, v, k) for u, v, k, d in G.edges(keys=True, data=True)
+    #                 if not ('cycleway' in d or d['highway'] == 'cycleway')]
+    #G.remove_edges_from(non_cycleways)
+    #G = ox.remove_isolated_nodes(G)
     G = ox.simplify_graph(G)
     return ox.project_graph(G)
 
@@ -115,10 +115,10 @@ for name, city in cities.items():
     start_0 = time.time()
 
     # Create and check the path
-    path = 'data/{}/'.format(name)
+    path = 'data/bikes_streets/{}/'.format(name)
     assure_path_exists(path)
 
-    path_simple = 'data/{}/simple/'.format(name)
+    path_simple = 'data/bikes_streets/{}/simple/'.format(name)
     assure_path_exists(path_simple)
 
     print('Starting with: {}'.format(name))
@@ -131,6 +131,7 @@ for name, city in cities.items():
     ox.plot_shape(city_shape)
 
     # Drive
+    '''
     G_drive = get_network(city, n_type='drive')
     ox.save_graphml(G_drive, filename='{}_drive.graphml'.format(name), folder=path)
     print('{} Drive downloaded and saved. Elapsed time {} s\nSimplifying the network...'.format(
@@ -149,12 +150,13 @@ for name, city in cities.items():
     nx.write_edgelist(G_simple, path=path_simple+'{}_pedestrian_simple.txt'.format(name))
     print('{} Pedestrian simplified and saved. Elapsed time {} s'.format(
         name, round(time.time()-start_0, 2)))
-
+    '''
     # Bike
-    if name == 'Beihai':
-        G = bike_walk_network(G_drive)
-    else:
-        G = bike_network(city)
+    #if name == 'Beihai':
+    #    G = bike_walk_network(G_drive)
+    #else:
+    #    G = bike_network(city)
+    G = bike_network(city)
     ox.save_graphml(G, filename='{}_bike.graphml'.format(name), folder=path)
     print('{} Bike downloaded and saved. Elapsed time {} s\nSimplifying the network...'.format(
         name, round(time.time()-start_0, 2)))

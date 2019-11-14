@@ -11,13 +11,14 @@ import numpy as np
 import os
 import time
 import osmnx as ox
-import matplotlib
-matplotlib.use('Agg')
 '''
 Script to connect and analyze the different connected components on the bicycle layer of the cities.
 This is a greedy algorithm that connects the two LCC's in each iteration.
 '''
 
+# Imports
+import matplotlib
+matplotlib.use('Agg')
 
 # Confg osmnx
 ox.config(data_folder='../Data', logs_folder='../logs',
@@ -48,7 +49,7 @@ def load_graph(name, layer):
 
     returns: Networkx MultiDiGraph
     '''
-    return ox.load_graphml('{}/{}_{}.graphml'.format(name, name, layer))
+    return ox.load_graphml('{}/{}_{}.graphml'.format(name, name, layer), folder='../Data/bike_streets/')
 
 
 def euclidean_dist_vec(y1, x1, y2, x2):
@@ -60,27 +61,49 @@ def euclidean_dist_vec(y1, x1, y2, x2):
 
 
 def closest_pair(wcc):
-    '''
-    Find the closest pair of nodes between two different connected components.
-    ---
-    wcc: list connected components
+    """Find the closest pair of nodes between the two largest components.
 
-    returns: dict nodes i and j and distance
-    '''
+    Parameters
+    ----------
+    wcc : list
+        Sorted list that contains the components of graph G.
+
+    Returns
+    -------
+    dict
+        Dictionary with the nodes 'i' and 'j' and the distance between them.
+    """
     closest_pair = {'i': 0, 'j': 0, 'dist': np.inf}
     for i in wcc[0].nodes(data=True):
         i_coord = (i[1]['y'], i[1]['x'])
-        for j in wcc[1].nodes(data=True):
-            j_coord = (j[1]['y'], j[1]['x'])
-            dist = euclidean_dist_vec(i_coord[0], i_coord[1], j_coord[0], j_coord[1])
-            if dist < closest_pair['dist']:
-                closest_pair['i'] = i[0]
-                closest_pair['j'] = j[0]
-                closest_pair['dist'] = dist
+        for cc in wcc[1:]:
+            for j in cc.nodes(data=True):
+                j_coord = (j[1]['y'], j[1]['x'])
+                dist = euclidean_dist_vec(i_coord[0], i_coord[1], j_coord[0], j_coord[1])
+                if dist < closest_pair['dist']:
+                    closest_pair['i'] = i[0]
+                    closest_pair['j'] = j[0]
+                    closest_pair['dist'] = dist
     return closest_pair
 
 
 def get_data(G_bike, name):
+    """Execute main algorithm, merge the connected components following .
+
+    Parameters
+    ----------
+    G_bike : type
+        Description of parameter `G_bike`.
+    name : type
+        Description of parameter `name`.
+
+    Returns
+    -------
+    type
+        Description of returned object.
+
+    """
+
     start = time.time()
     # 0.- Create lists to store data
     nodes_cc = []
@@ -136,24 +159,28 @@ def get_data(G_bike, name):
         if closest_ij['i'] != closest_ij['j']:
             G_bike.add_edge(closest_ij['i'], closest_ij['j'], length=0)  # closest_ij['dist'
         ncc += 1
-        print('{} {}/{} done, elapsed time {} min, avg {} seg, to go: {} min.'.format(name, ncc, to_iterate, round((time.time() -
-                                                                                                                    start)/60, 2), round((time.time()-start)/ncc, 2), round((((time.time()-start)/ncc)*(to_iterate-ncc))/60, 2)))
+        print('{} {}/{} done, elapsed time {} min, avg {} seg, to go: {} min.'.format(name, ncc, to_iterate,
+                                                                                      round((time.time()-start)/60, 2), round((time.time()-start)/ncc, 2), round((((time.time()-start)/ncc)*to_iterate-ncc)/60, 2)))
         if delta[-1] > 200000:
             break
     return delta, nodes_cc, length_cc, i_s, j_s
 
 
 def main(name):
+    #Global_start = time.time()
+    path_plot = '../imgs/Percolation/'
+    assure_path_exists(path_plot)
+    print('Path ready')
     # for name in cities:
     print('Starting with {}'.format(name))
     G_bike = load_graph(name, 'bike')
-    data_path = '../Data/WCC/'
+    data_path = '../Data/bike_streets/'
     assure_path_exists(data_path)
     print(' + Data loaded\n + Starting the calculations:')
     delta, nodes_cc, length_cc, i_s, j_s = get_data(G_bike, name)
     df = pd.DataFrame(np.column_stack([delta, nodes_cc, length_cc, i_s, j_s]), columns=[
                       'delta', 'nodes_cc', 'length_cc', 'i', 'j'])
-    df.to_csv(data_path+'{}_CC_data.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
+    df.to_csv(data_path+'{}_CC_data_L2C.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
               compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
     print('{} done\n------------\n------------\n\n'.format(name))
     # End of loop

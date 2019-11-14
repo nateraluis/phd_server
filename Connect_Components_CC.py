@@ -38,7 +38,7 @@ def assure_path_exists(path):
 
 
 def load_graph(name, layer):
-    return ox.load_graphml('{}/{}_{}.graphml'.format(name, name, layer))
+    return ox.load_graphml('{}/{}_{}.graphml'.format(name, name, layer), folder='../Data/bike_streets/')
 
 
 def euclidean_dist_vec(y1, x1, y2, x2):
@@ -134,13 +134,13 @@ def main(name):
     # for name in cities:
     print('Starting with {}'.format(name))
     G_bike = load_graph(name, 'bike')
-    data_path = '../Data/WCC/'
+    data_path = '../Data/bike_streets/'
     assure_path_exists(data_path)
     print(' + Data loaded\n + Starting the calculations:')
     delta, nodes_cc, length_cc, i_s, j_s = get_data(G_bike, name)
     df = pd.DataFrame(np.column_stack([delta, nodes_cc, length_cc, i_s, j_s]), columns=[
                       'delta', 'nodes_cc', 'length_cc', 'i', 'j'])
-    df.to_csv(data_path+'{}_CC_SmallestDelta_data.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
+    df.to_csv(data_path+'{}_CC_data_CC.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
               compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
     print('{} done\n------------\n------------\n\n'.format(name))
 
