@@ -154,7 +154,7 @@ if __name__ == '__main__':
               'Portland': 'Portland, Oregon, USA',
               'Bogota': 'Bogotá, Colombia',
               'LA': 'Los Angeles, Los Angeles County, California, USA',
-              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia'
+              'Jakarta': 'Daerah Khusus Ibukota Jakarta, Indonesia',
               'London': 'London, England'}
     print('Starting the script, go and grab a coffe, it is going to be a long one :)')
     pool = Pool(processes=10)
