@@ -1,11 +1,7 @@
 from multiprocessing import Pool
 from itertools import combinations
-import matplotlib.colors as mpcol
-import matplotlib.colors as colors
 import random
 import datetime
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import geopandas as gpd
 import networkx as nx
 import pandas as pd
@@ -18,12 +14,12 @@ Script to connect and analyze the different connected components on the bicycle 
 This iteration of the algorithm randomly takes on of the connected commponents, looks for the distance to all other commponents and create a link with the closest one.
 '''
 
-# Imports
-import matplotlib
-matplotlib.use('Agg')
+#Script configs:
+output_path = '../Data/bike_streets/filter/outputs/'
+data_path = '../Data/bike_streets/filter/'
 
 # Confg osmnx
-ox.config(data_folder='../Data', logs_folder='../logs',
+ox.config(data_folder = data_path, logs_folder='../logs',
           imgs_folder='../imgs', cache_folder='../cache',
           use_cache=True, log_console=False, log_name='osmnx',
           log_file=True, log_filename='osmnx')
@@ -38,7 +34,7 @@ def assure_path_exists(path):
 
 
 def load_graph(name, layer):
-    return ox.load_graphml('{}/{}_{}.graphml'.format(name, name, layer), folder='../Data/bike_streets/')
+    return ox.load_graphml('{}/{}_{}.graphml'.format(name, name, layer))
 
 
 def euclidean_dist_vec(y1, x1, y2, x2):
@@ -119,28 +115,21 @@ def get_data(G_bike, name):
                 l_temp += e[2]['length']  # Get the total length of the LCC
             length_cc.append(l_temp/1000)
         ncc += 1
-        print('{} {}/{} done, elapsed time {} min, avg {} seg, to go: {} min.'.format(name, ncc, to_iterate,
-                                                                                      round((time.time()-start)/60, 2), round((time.time()-start)/ncc, 2), round((((time.time()-start)/ncc)*to_iterate-ncc)/60, 2)))
+        print('{} {}/{} done, elapsed time {} min, avg {} seg, to go: {} min.'.format(name, ncc, to_iterate,round((time.time()-start)/60, 2), round((time.time()-start)/ncc, 2), round((((time.time()-start)/ncc)*to_iterate-ncc)/60, 2)))
         if delta[-1] > 200000:
             break
     return delta, nodes_cc, length_cc, i_s, j_s
 
 
 def main(name):
-    #Global_start = time.time()
-    path_plot = '../imgs/Percolation/'
-    assure_path_exists(path_plot)
-    print('Path ready')
-    # for name in cities:
     print('Starting with {}'.format(name))
     G_bike = load_graph(name, 'bike')
-    data_path = '../Data/bike_streets/'
-    assure_path_exists(data_path)
+    assure_path_exists(output_path)
     print(' + Data loaded\n + Starting the calculations:')
     delta, nodes_cc, length_cc, i_s, j_s = get_data(G_bike, name)
     df = pd.DataFrame(np.column_stack([delta, nodes_cc, length_cc, i_s, j_s]), columns=[
                       'delta', 'nodes_cc', 'length_cc', 'i', 'j'])
-    df.to_csv(data_path+'{}_CC_data_CC.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
+    df.to_csv(output_path+'{}_CC_data_CC.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
               compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
     print('{} done\n------------\n------------\n\n'.format(name))
 

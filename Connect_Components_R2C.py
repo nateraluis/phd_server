@@ -1,6 +1,4 @@
 from multiprocessing import Pool
-import matplotlib.colors as mpcol
-import matplotlib.colors as colors
 import random
 import datetime
 import matplotlib.pyplot as plt
@@ -16,13 +14,12 @@ import osmnx as ox
 Script to connect and analyze the different connected components on the bicycle layer of the cities.
 This iteration of the algorithm randomly takes on of the connected commponents, looks for the distance to all other commponents and create a link with the closest one.
 '''
-
-# Imports
-import matplotlib
-matplotlib.use('Agg')
+#Script configs:
+output_path = '../Data/bike_streets/filter/outputs/'
+data_path = '../Data/bike_streets/filter/'
 
 # Confg osmnx
-ox.config(data_folder='../Data', logs_folder='../logs',
+ox.config(data_folder=data_path, logs_folder='../logs',
           imgs_folder='../imgs', cache_folder='../cache',
           use_cache=True, log_console=False, log_name='osmnx',
           log_file=True, log_filename='osmnx')
@@ -37,7 +34,7 @@ def assure_path_exists(path):
 
 
 def load_graph(name, layer):
-    return ox.load_graphml('{}/{}_{}.graphml'.format(name, name, layer), folder='../Data/bike_streets/')
+    return ox.load_graphml('{}/{}_{}.graphml'.format(name, name, layer))
 
 
 def euclidean_dist_vec(y1, x1, y2, x2):
@@ -127,15 +124,13 @@ def get_data(G_bike, name):
 
 
 def main(name):
-    # for name in cities:
     print('Starting with {}'.format(name))
     G_bike = load_graph(name, 'bike')
-    data_path = '../Data/bike_streets/'
-    assure_path_exists(data_path)
+    assure_path_exists(output_path)
     delta, nodes_cc, length_cc, i_s, j_s = get_data(G_bike, name)
     df = pd.DataFrame(np.column_stack([delta, nodes_cc, length_cc, i_s, j_s]), columns=[
                       'delta', 'nodes_cc', 'length_cc', 'i', 'j'])
-    df.to_csv(data_path+'{}_CC_data_R2C.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
+    df.to_csv(output_path+'{}_CC_data_R2C.csv'.format(name), sep=",", na_rep='', float_format=None, columns=None, header=True, index=True, index_label=None, mode='w', encoding=None,
               compression=None, quoting=None, quotechar='"', line_terminator='n', chunksize=None, tupleize_cols=None, date_format=None, doublequote=True, escapechar=None, decimal='.')
     print('{} done\n------------\n------------\n\n'.format(name))
 
