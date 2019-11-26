@@ -58,7 +58,8 @@ def load_graphs(name):
            'LA': {'init': 'epsg:2763'},
            'Jakarta': {'init': 'epsg:5331'}}
 
-    G_bike = ox.load_graphml('{}/{}_bike.graphml'.format(name, name))
+    #G_bike = ox.load_graphml('{}/{}_bike.graphml'.format(name, name))#Load bicycle infrastructure only
+    G_bike = ox.load_graphml('{}/{}_bike.graphml'.format(name, name))#Loads bicycle and street infrastructure
     G_drive = ox.load_graphml('{}/{}_drive.graphml'.format(name, name))
     G_bike = ox.get_undirected(G_bike)
     G_drive = ox.get_undirected(G_drive)
@@ -74,16 +75,29 @@ def load_df(name, algorithm):
     returns: Dataframe
     '''
 
+    # if algorithm == 'greedy_LCC':
+    #     df = pd.read_csv('../Data/WCC/{}_CC_data.csv'.format(name), lineterminator='n', index_col=0)
+    # elif algorithm == 'random':
+    #     df = pd.read_csv('../Data/WCC/{}_CC_Random_data.csv'.format(name),
+    #                      lineterminator='n', index_col=0)
+    # elif algorithm == 'min_delta':
+    #     df = pd.read_csv('../Data/WCC/{}_CC_SmallestDelta_data.csv'.format(name),
+    #                      lineterminator='n', index_col=0)
+    # elif algorithm == 'greedy_min':
+    #     df = pd.read_csv('../Data/WCC/{}_CC_data_Greedy_Closest.csv'.format(name),
+    #                      lineterminator='n', index_col=0)
+
+    #Uncomment to load bike + street data:
     if algorithm == 'greedy_LCC':
-        df = pd.read_csv('../Data/WCC/{}_CC_data.csv'.format(name), lineterminator='n', index_col=0)
+        df = pd.read_csv('../Data/bike_streets/filter/outputs/{}_CC_data_L2S.csv'.format(name), lineterminator='n', index_col=0)
     elif algorithm == 'random':
-        df = pd.read_csv('../Data/WCC/{}_CC_Random_data.csv'.format(name),
+        df = pd.read_csv('../Data/bike_streets/filter/outputs/{}_CC_data_R2C.csv'.format(name),
                          lineterminator='n', index_col=0)
     elif algorithm == 'min_delta':
-        df = pd.read_csv('../Data/WCC/{}_CC_SmallestDelta_data.csv'.format(name),
+        df = pd.read_csv('../Data/bike_streets/filter/outputs/{}_CC_data_CC.csv'.format(name),
                          lineterminator='n', index_col=0)
     elif algorithm == 'greedy_min':
-        df = pd.read_csv('../Data/WCC/{}_CC_data_Greedy_Closest.csv'.format(name),
+        df = pd.read_csv('../Data/bike_streets/filter/outputs/{}_CC_data_L2C.csv'.format(name),
                          lineterminator='n', index_col=0)
     df['i'] = df.i.round(0).astype(int)
     df['j'] = df.j.round(0).astype(int)
@@ -232,7 +246,7 @@ def run_calculations(algorithm, G_bike_o, G_drive_o, name, seeds_bike, seeds_car
     df = load_df(name, algorithm)
     # Load the graph
 
-    data_path = '../Data/WCC/new/'
+    data_path = '../Data/bike_streets/filter/outputs/'
     assure_path_exists(data_path)
     print('{} {} data loaded in {}\n + Starting the calculations:'.format(name,
                                                                           algorithm, round(time.time()-start, 3)))
