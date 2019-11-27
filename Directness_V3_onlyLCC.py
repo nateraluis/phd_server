@@ -59,7 +59,7 @@ def load_graphs(name):
            'Jakarta': {'init': 'epsg:5331'}}
 
     #G_bike = ox.load_graphml('{}/{}_bike.graphml'.format(name, name))#Load bicycle infrastructure only
-    G_bike = ox.load_graphml('{}/{}_bike.graphml'.format(name, name))#Loads bicycle and street infrastructure
+    G_bike = ox.load_graphml('{}/{}_bike.graphml'.format(name, name), folder='../Data/bike_streets/filter/')#Loads bicycle and street infrastructure
     G_drive = ox.load_graphml('{}/{}_drive.graphml'.format(name, name))
     G_bike = ox.get_undirected(G_bike)
     G_drive = ox.get_undirected(G_drive)
@@ -212,8 +212,8 @@ def calculate_directness(df, G_bike, G_drive, name, algorithm, seeds_bike, car_v
         print('{} {}: {}/{}'.format(name, algorithm, ind, len(df)))
         avg_bike = []
         if ind > 0:
-            G_bike.add_edge(row['i'], row['j'], length=euclidean_dist_vec(G_bike.nodes[row['i']]['y'],
-                                                                          G_bike.nodes[row['i']]['x'], G_bike.nodes[row['j']]['y'], G_bike.nodes[row['j']]['x']))
+            G_bike.add_edge(int(row['i']), int(row['j']), length=euclidean_dist_vec(G_bike.nodes[int(row['i'])]['y'],
+                                                                          G_bike.nodes[int(row['i'])]['x'], G_bike.nodes[int(row['j'])]['y'], G_bike.nodes[int(row['j'])]['x']))
         for i_j in seeds_bike:
             euclidean_distance = euclidean_dist_vec(
                 G_bike.nodes[i_j[0]]['y'], G_bike.nodes[i_j[0]]['x'], G_bike.nodes[i_j[1]]['y'], G_bike.nodes[i_j[0]]['x'])
