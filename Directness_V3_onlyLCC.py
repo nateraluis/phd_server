@@ -191,7 +191,6 @@ def get_travel_distance(G, u_v):
         try:
             distance += float(G[i][j][0]['length'])
         except:
-            print('Error: {} {}'.format(G, u_v))
         #    pass
             distance += euclidean_dist_vec(G.nodes[i]['y'],
                                            G.nodes[i]['x'], G.nodes[j]['y'], G.nodes[j]['x'])
@@ -269,7 +268,10 @@ def main(name):
         euclidean_distance = euclidean_dist_vec(G_drive_o.nodes[u_v[0]]['y'],
                                                 G_drive_o.nodes[u_v[0]]['x'], G_drive_o.nodes[u_v[1]]['y'], G_drive_o.nodes[u_v[0]]['x'])
         travel_distance = get_travel_distance(G_drive_o, u_v)
-        avg_street.append(euclidean_distance/travel_distance)
+        if travel_distance > 0:
+            avg_street.append(euclidean_distance/travel_distance)
+        else:
+            avg_street.append(0)
     car_value = np.average(avg_street)  # Average efficiency in the car layer
     print('Calculations done fore cars, d_ij^s = {}'.format(car_value))
     for algorithm in algorithms:
